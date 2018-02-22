@@ -11,7 +11,7 @@ To become an Android developer, you must know how to bring particular mobile exp
 TODO
 
 ## What Did I Learn?
-- Fetch data from the Internet with theMovieDB API.
+- Fetch data from the Internet with the MovieDB API.
 - Use adapters and custom list layouts to populate list views.
 - Incorporate libraries to simplify the amount of code you need to write
 
