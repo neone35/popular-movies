@@ -1,4 +1,4 @@
-# Popular Movies
+﻿# Popular Movies
 
 ## Project Overview
 Most of us can relate to kicking back on the couch and enjoying a movie with friends and family. In this project, you’ll build an app to allow users to discover the most popular movies playing. 
@@ -25,6 +25,10 @@ TODO
   * A plot synopsis (called overview in the api)
   * user rating (called vote_average in the api)
   * release date
+
+## Instructions
+1. Add API key at utilities/MovieDBUrlUtils.java
+2. Start application
 
 
 

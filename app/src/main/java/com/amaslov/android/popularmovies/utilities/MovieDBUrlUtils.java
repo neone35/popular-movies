@@ -39,7 +39,7 @@ public class MovieDBUrlUtils {
     private static final String MOVIE_DB_AUTHORITY = "api.themoviedb.org";
     private static final String MOVIE_DB_API_VERSION = "3";
     private static final String MOVIE_DB_PATH_MOVIE = "movie";
-    private static final String MOVIE_DB_API_KEY = "1d2fb9fdadfd0338c67212b5a352abe9";
+    private static final String MOVIE_DB_API_KEY = ""/* insert your api key here */;
     private static final String PARAM_API_KEY = "api_key";
     private static final String MOVIE_DB_PATH_CONFIGURATION = "configuration";
 
