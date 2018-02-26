@@ -13,9 +13,9 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.RadioGroup;
-import android.support.v7.widget.Toolbar;
 
 import com.amaslov.android.popularmovies.databinding.ActivityMainBinding;
+import com.amaslov.android.popularmovies.parcelables.MovieInfo;
 import com.amaslov.android.popularmovies.utilities.MovieDBJsonUtils;
 import com.amaslov.android.popularmovies.utilities.MovieDBUrlUtils;
 
@@ -24,42 +24,44 @@ import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.Response;
 
-public class MainActivity extends AppCompatActivity implements CustomAdapter.ListItemClickListener {
+public class MainActivity extends AppCompatActivity implements MoviePosterAdapter.ListItemClickListener {
 
-    public static final String EXTRA_ITEM_INDEX = "item_index";
+    public static final String EXTRA_MOVIE_ID = "movie_id";
+    public static final String EXTRA_MOVIE_FULL_URL = "movie_poster_full_url";
     private static final int GRID_SPAN_COUNT = 3;
     ActivityMainBinding mainBinding;
-    private RecyclerView mRecyclerView;
+    private RecyclerView posterRecyclerView;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         mainBinding = DataBindingUtil.setContentView(this, R.layout.activity_main);
-        toolbarWidgetSetup();
+        actionBarSetup();
         recyclerViewSetup();
         radioGroupListenerSetup();
     }
 
-    private void toolbarWidgetSetup() {
-        Toolbar moviesToolbar = (Toolbar) findViewById(R.id.moviesToolbar);
-        setSupportActionBar(moviesToolbar);
+    private void actionBarSetup() {
+        getSupportActionBar().setDisplayShowHomeEnabled(true);
+        getSupportActionBar().setLogo(R.mipmap.ic_launcher);
+        getSupportActionBar().setDisplayUseLogoEnabled(true);
     }
 
     private void radioGroupListenerSetup() {
-        displayPopularMoviePosters();
+        displayMoviePosters(MovieDBUrlUtils.MOVIE_DB_PATH_POPULAR); //default
         mainBinding.popularTopRadioGroup.setOnCheckedChangeListener(new RadioGroup.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(RadioGroup radioGroup, int checkedId) {
                 Log.d(getLocalClassName(), "onCheckedChanged: " + checkedId);
                 switch (checkedId) {
                     case R.id.rb_popular:
-                        displayPopularMoviePosters();
+                        displayMoviePosters(MovieDBUrlUtils.MOVIE_DB_PATH_POPULAR);
                         break;
                     case R.id.rb_top_rated:
-                        displayTopRatedMoviePosters();
+                        displayMoviePosters(MovieDBUrlUtils.MOVIE_DB_PATH_TOP_RATED);
                         break;
                     case R.id.rb_upcoming:
-                        displayUpcomingMoviePosters();
+                        displayMoviePosters(MovieDBUrlUtils.MOVIE_DB_PATH_UPCOMING);
                         break;
                 }
             }
@@ -67,40 +69,25 @@ public class MainActivity extends AppCompatActivity implements CustomAdapter.Lis
     }
 
     private void recyclerViewSetup() {
-        mRecyclerView = mainBinding.rvPosters;
+        posterRecyclerView = mainBinding.rvPosters;
         GridLayoutManager gridLayoutManager = new GridLayoutManager(this, GRID_SPAN_COUNT);
-        mRecyclerView.setLayoutManager(gridLayoutManager);
-        mRecyclerView.setHasFixedSize(true);
-
+        posterRecyclerView.setLayoutManager(gridLayoutManager);
+        posterRecyclerView.setHasFixedSize(true);
     }
 
-    private void displayPopularMoviePosters() {
+    private void displayMoviePosters(String sortBy) {
         String configUrl = MovieDBUrlUtils.getConfigUrl();
-        String moviesUrl = MovieDBUrlUtils.getMoviesUrl(MovieDBUrlUtils.MOVIE_DB_PATH_POPULAR);
+        String moviesUrl = MovieDBUrlUtils.getMoviesUrl(sortBy);
         String[] configAndUrls = {configUrl, moviesUrl};
-        new mAsyncTask().execute(configAndUrls, null, null);
-    }
-
-    private void displayTopRatedMoviePosters() {
-        String configUrl = MovieDBUrlUtils.getConfigUrl();
-        String moviesUrl = MovieDBUrlUtils.getMoviesUrl(MovieDBUrlUtils.MOVIE_DB_PATH_TOP_RATED);
-        String[] configAndUrls = {configUrl, moviesUrl};
-        new mAsyncTask().execute(configAndUrls, null, null);
-    }
-
-    private void displayUpcomingMoviePosters() {
-        String configUrl = MovieDBUrlUtils.getConfigUrl();
-        String moviesUrl = MovieDBUrlUtils.getMoviesUrl(MovieDBUrlUtils.MOVIE_DB_PATH_UPCOMING);
-        String[] configAndUrls = {configUrl, moviesUrl};
-        new mAsyncTask().execute(configAndUrls, null, null);
+        new movieInfoAsyncTask().execute(configAndUrls, null, null);
     }
 
     @Override
-    public void onListItemClick(int clickedItemIndex) {
+    public void onListItemClick(String movieId, String movieFullUrl) {
         Intent intent = new Intent(this, MovieDetailsActivity.class);
-        String itemIndex = String.valueOf(clickedItemIndex);
-        Log.d(getLocalClassName(), "onListItemClick: " + itemIndex);
-        intent.putExtra(EXTRA_ITEM_INDEX, itemIndex);
+        Log.d(getLocalClassName(), "onListItemClick: " + movieId);
+        intent.putExtra(EXTRA_MOVIE_ID, movieId);
+        intent.putExtra(EXTRA_MOVIE_FULL_URL, movieFullUrl);
         startActivity(intent);
     }
 
@@ -124,7 +111,7 @@ public class MainActivity extends AppCompatActivity implements CustomAdapter.Lis
     }
 
     @SuppressLint("StaticFieldLeak")
-    private class mAsyncTask extends AsyncTask<String[], Void, String[]> {
+    private class movieInfoAsyncTask extends AsyncTask<String[], Void, MovieInfo> {
         ProgressDialog dialog;
 
         @Override
@@ -136,7 +123,7 @@ public class MainActivity extends AppCompatActivity implements CustomAdapter.Lis
             dialog.show();
         }
 
-        protected String[] doInBackground(String[]... strings) {
+        protected MovieInfo doInBackground(String[]... strings) {
             String[] urls = strings[0];
             OkHttpClient client = new OkHttpClient();
             Request reqImageUrlConfig = new Request.Builder()
@@ -147,7 +134,6 @@ public class MainActivity extends AppCompatActivity implements CustomAdapter.Lis
                     .url(urls[1])
                     .get()
                     .build();
-            Log.d("doInBackground", "doInBackground: " + urls[0] + " " + urls[1]);
             try {
                 Response resImageUrlConfig = client.newCall(reqImageUrlConfig).execute();
                 Response resMoviePostersJPG = client.newCall(reqMoviePostersJPG).execute();
@@ -157,30 +143,25 @@ public class MainActivity extends AppCompatActivity implements CustomAdapter.Lis
                 String imageUrlConfig = MovieDBJsonUtils
                         .getImageUrl(resConfigJSON);
                 String[] moviePosterJPGs = MovieDBJsonUtils
-                        .getMoviePosterJPGs(resMoviesJSON);
+                        .getMovieValues(resMoviesJSON, MovieDBJsonUtils.MOVIE_DB_POSTER_PATH);
+                String[] movieIDs = MovieDBJsonUtils
+                        .getMovieValues(resMoviesJSON, MovieDBJsonUtils.MOVIE_DB_ID);
                 String[] fullImageUrls = new String[moviePosterJPGs.length];
                 for (int i = 0; i < fullImageUrls.length; i++) {
                     fullImageUrls[i] = imageUrlConfig + moviePosterJPGs[i];
                 }
-                return fullImageUrls;
+                return new MovieInfo(fullImageUrls, movieIDs);
             } catch (Exception e) {
                 e.printStackTrace();
                 return null;
             }
         }
 
-        protected void onPostExecute(String[] result) {
+        protected void onPostExecute(MovieInfo moviesInfo) {
             dialog.dismiss();
-//            for (int i=0; i<result.length; i++) {
-//                Log.d(TAG, "onPostExecute: " + result[i]);
-//            }
-//            Picasso.with(MainActivity.this)
-//                    .load(result[5])
-//                    .into(mainBinding.ivTestPoster);
-
-            CustomAdapter customAdapter = new CustomAdapter(MainActivity.this, result);
-            mRecyclerView.setAdapter(customAdapter);
-            customAdapter.notifyDataSetChanged();
+            MoviePosterAdapter moviePosterAdapter = new MoviePosterAdapter(MainActivity.this, moviesInfo);
+            posterRecyclerView.setAdapter(moviePosterAdapter);
+            moviePosterAdapter.notifyDataSetChanged();
         }
     }
 }

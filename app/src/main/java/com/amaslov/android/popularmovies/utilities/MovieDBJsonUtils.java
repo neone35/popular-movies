@@ -3,6 +3,8 @@ package com.amaslov.android.popularmovies.utilities;
 import android.content.Context;
 import android.util.Log;
 
+import com.amaslov.android.popularmovies.parcelables.MovieDetails;
+
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -14,6 +16,9 @@ import static android.content.ContentValues.TAG;
  */
 
 public class MovieDBJsonUtils {
+
+    public static final String MOVIE_DB_POSTER_PATH = "poster_path";
+    public static final String MOVIE_DB_ID = "id";
 
     public static String getImageUrl(String configJson)
             throws JSONException {
@@ -37,25 +42,39 @@ public class MovieDBJsonUtils {
         return baseUrl + posterSize;
     }
 
-    public static String[] getMoviePosterJPGs(String movieJsonStr)
+    public static String[] getMovieValues(String movieJsonStr, String movieKey)
             throws JSONException {
 
         final String MOVIEDB_RESULTS = "results";
-        final String MOVIEDB_POSTER_PATH = "poster_path";
 
-        String[] moviePosterJPGpaths = null;
         JSONObject moviesJSONObject = new JSONObject(movieJsonStr);
         JSONArray movieArray = moviesJSONObject.getJSONArray(MOVIEDB_RESULTS);
-        moviePosterJPGpaths = new String[movieArray.length()];
+        String[] moviePosterValues = new String[movieArray.length()];
 
         for (int i = 0; i < movieArray.length(); i++) {
             JSONObject oneMovieResult = movieArray.getJSONObject(i);
-            String oneMoviePosterPath = oneMovieResult.getString(MOVIEDB_POSTER_PATH);
-            moviePosterJPGpaths[i] = oneMoviePosterPath;
+            String oneMovieValue = oneMovieResult.getString(movieKey); // POSTER_PATH || ID
+            moviePosterValues[i] = oneMovieValue;
         }
-        // /6uOMVZ6oG00xjq0KQiExRBw2s3P.jpg
-        return moviePosterJPGpaths;
+        // /6uOMVZ6oG00xjq0KQiExRBw2s3P.jpg || 198663
+        return moviePosterValues;
     }
 
+    public static MovieDetails getMovieDetails(String detailsJsonStr, String movieFullUrl)
+            throws JSONException {
+
+        final String MOVIEDB_TITLE = "original_title";
+        final String MOVIEDB_RELEASE_DATE = "release_date";
+        final String MOVIEDB_VOTE_AVERAGE = "vote_average";
+        final String MOVIEDB_OVERVIEW = "overview";
+
+        JSONObject detailsJSONObject = new JSONObject(detailsJsonStr);
+        String movieTitle = detailsJSONObject.getString(MOVIEDB_TITLE);
+        String movieReleaseDate = detailsJSONObject.getString(MOVIEDB_RELEASE_DATE);
+        String movieVoteAverage = detailsJSONObject.getString(MOVIEDB_VOTE_AVERAGE);
+        String movieOverview = detailsJSONObject.getString(MOVIEDB_OVERVIEW);
+        return new MovieDetails(
+                movieFullUrl, movieTitle, movieReleaseDate, movieVoteAverage, movieOverview);
+    }
 
 }

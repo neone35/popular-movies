@@ -47,19 +47,16 @@ public class MovieDBUrlUtils {
     }
 
     public static String getConfigUrl() {
-        String configUrl = null;
         Uri.Builder builder = new Uri.Builder();
         builder.scheme(SCHEME_HTTPS)
                 .authority(MOVIE_DB_AUTHORITY)
                 .appendPath(MOVIE_DB_API_VERSION)
                 .appendPath(MOVIE_DB_PATH_CONFIGURATION)
                 .appendQueryParameter(PARAM_API_KEY, MOVIE_DB_API_KEY);
-        configUrl = builder.build().toString();
-        return configUrl;
+        return builder.build().toString();
     }
 
     public static String getMoviesUrl(String sortBy) {
-        String popularMoviesUrl = null;
         Uri.Builder builder = new Uri.Builder();
         builder.scheme(SCHEME_HTTPS)
                 .authority(MOVIE_DB_AUTHORITY)
@@ -67,8 +64,18 @@ public class MovieDBUrlUtils {
                 .appendPath(MOVIE_DB_PATH_MOVIE)
                 .appendPath(sortBy)
                 .appendQueryParameter(PARAM_API_KEY, MOVIE_DB_API_KEY);
-        popularMoviesUrl = builder.build().toString();
-        return popularMoviesUrl;
+        return builder.build().toString();
+    }
+
+    public static String getDetailsUrl(String movieId) {
+        Uri.Builder builder = new Uri.Builder();
+        builder.scheme(SCHEME_HTTPS)
+                .authority(MOVIE_DB_AUTHORITY)
+                .appendPath(MOVIE_DB_API_VERSION)
+                .appendPath(MOVIE_DB_PATH_MOVIE)
+                .appendPath(movieId)
+                .appendQueryParameter(PARAM_API_KEY, MOVIE_DB_API_KEY);
+        return builder.build().toString();
     }
 
 

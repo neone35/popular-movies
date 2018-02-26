@@ -1,34 +1,34 @@
 package com.amaslov.android.popularmovies;
 
 import android.support.v7.widget.RecyclerView;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 
+import com.amaslov.android.popularmovies.parcelables.MovieInfo;
 import com.squareup.picasso.Picasso;
 
 /**
  * Created by aarta on 2018-02-25.
  */
 
-public class CustomAdapter extends RecyclerView.Adapter<CustomAdapter.ViewHolder> {
-    private static final String TAG = "CustomAdapter";
-    private static String[] mPosterUrls;
+public class MoviePosterAdapter extends RecyclerView.Adapter<MoviePosterAdapter.ViewHolder> {
+    private static final String TAG = "MoviePosterAdapter";
+    private static MovieInfo movie;
     final private ListItemClickListener mOnClickListener;
 
-    public CustomAdapter(ListItemClickListener listener, String[] posterUrls) {
+    public MoviePosterAdapter(ListItemClickListener listener, MovieInfo moviesInfo) {
         mOnClickListener = listener;
-        mPosterUrls = posterUrls;
+        movie = moviesInfo;
     }
 
     @Override
     public int getItemCount() {
-        if (mPosterUrls == null) {
+        if (movie.getFullUrls() == null) {
             return 0;
         }
-        return mPosterUrls.length;
+        return movie.getFullUrls().length;
     }
 
     @Override
@@ -43,7 +43,7 @@ public class CustomAdapter extends RecyclerView.Adapter<CustomAdapter.ViewHolder
     public void onBindViewHolder(ViewHolder viewHolder, final int position) {
 //        Log.d(TAG, "Element " + position + " set.");
         Picasso.with(viewHolder.posterImageView.getContext())
-                .load(mPosterUrls[position])
+                .load(movie.getFullUrls()[position])
                 .placeholder(R.drawable.poster_placeholder)
                 .centerCrop()
                 .resize(150, 200)
@@ -51,7 +51,7 @@ public class CustomAdapter extends RecyclerView.Adapter<CustomAdapter.ViewHolder
     }
 
     public interface ListItemClickListener {
-        void onListItemClick(int clickedItemIndex);
+        void onListItemClick(String movieId, String movieFullUrl);
     }
 
     /**
@@ -72,7 +72,8 @@ public class CustomAdapter extends RecyclerView.Adapter<CustomAdapter.ViewHolder
 
         @Override
         public void onClick(View view) {
-            mOnClickListener.onListItemClick(getAdapterPosition());
+            int p = getAdapterPosition();
+            mOnClickListener.onListItemClick(movie.getIds()[p], movie.getFullUrls()[p]);
         }
     }
 
