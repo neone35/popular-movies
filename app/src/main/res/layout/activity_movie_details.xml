@@ -4,21 +4,127 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools">
 
-    <android.support.constraint.ConstraintLayout
+    <ScrollView
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        tools:context="com.amaslov.android.popularmovies.MovieDetailsActivity">
+        android:layout_height="match_parent">
 
-        <TextView
-            android:id="@+id/textView"
-            android:layout_width="wrap_content"
+        <android.support.constraint.ConstraintLayout
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginStart="8dp"
-            android:layout_marginTop="8dp"
-            android:text="TextView"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent" />
-    </android.support.constraint.ConstraintLayout>
+            tools:context="com.amaslov.android.popularmovies.MovieDetailsActivity">
+
+            <ImageView
+                android:id="@+id/iv_poster"
+                android:layout_width="200dp"
+                android:layout_height="300dp"
+                android:layout_marginLeft="8dp"
+                android:layout_marginStart="8dp"
+                android:layout_marginTop="8dp"
+                android:background="@drawable/poster_stroke"
+                android:contentDescription="@string/movie_poster"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent" />
+
+            <TextView
+                android:id="@+id/tv_title"
+                style="@style/movieTitle"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="16dp"
+                android:layout_marginStart="16dp"
+                android:layout_marginTop="8dp"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/iv_poster"
+                tools:text="Avatar" />
+
+            <TextView
+                android:id="@+id/tv_date"
+                style="@style/movieDetails"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginEnd="32dp"
+                android:layout_marginRight="32dp"
+                android:layout_marginTop="8dp"
+                android:textSize="18sp"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/tv_date_title"
+                tools:text="2014-09-10" />
+
+            <TextView
+                android:id="@+id/tv_date_title"
+                style="@style/movieDetailsLabel"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="24dp"
+                android:layout_marginStart="24dp"
+                android:layout_marginTop="30dp"
+                android:text="@string/release_date"
+                app:layout_constraintStart_toEndOf="@+id/iv_poster"
+                app:layout_constraintTop_toTopOf="@+id/iv_poster"
+                tools:text="Release date" />
+
+            <TextView
+                android:id="@+id/tv_vote_average_title"
+                style="@style/movieDetailsLabel"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="24dp"
+                android:text="@string/average_vote"
+                app:layout_constraintStart_toStartOf="@+id/tv_date_title"
+                app:layout_constraintTop_toBottomOf="@+id/tv_date"
+                tools:text="Average vote" />
+
+            <TextView
+                android:id="@+id/tv_average_vote_append"
+                style="@style/movieDetails"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:text="@string/vote_average_append"
+                app:layout_constraintEnd_toEndOf="@+id/tv_date"
+                app:layout_constraintTop_toBottomOf="@+id/tv_vote_average_title"
+                tools:text="7 / 10" />
+
+            <TextView
+                android:id="@+id/tv_vote_count_label"
+                style="@style/movieDetailsLabel"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="24dp"
+                android:text="@string/votes"
+                app:layout_constraintStart_toStartOf="@+id/tv_vote_average_title"
+                app:layout_constraintTop_toBottomOf="@+id/tv_average_vote_append"
+                tools:text="Votes" />
+
+            <TextView
+                android:id="@+id/tv_vote_count"
+                style="@style/movieDetails"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                app:layout_constraintEnd_toEndOf="@+id/tv_average_vote_append"
+                app:layout_constraintTop_toBottomOf="@+id/tv_vote_count_label"
+                tools:text="7098" />
+
+            <TextView
+                android:id="@+id/tv_overview"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="8dp"
+                android:layout_marginEnd="16dp"
+                android:layout_marginStart="16dp"
+                android:layout_marginTop="8dp"
+                android:textSize="18sp"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/tv_title"
+                tools:text="Set in a post-apocalyptic world, young Thomas is deposited in a community of boys after his memory is erased, soon learning they're all trapped in a maze that will require him to join forces with fellow “runners” for a shot at escape." />
+
+        </android.support.constraint.ConstraintLayout>
+
+    </ScrollView>
+
 
 </layout>
 

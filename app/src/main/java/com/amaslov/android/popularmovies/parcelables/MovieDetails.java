@@ -3,10 +3,6 @@ package com.amaslov.android.popularmovies.parcelables;
 import android.os.Parcel;
 import android.os.Parcelable;
 
-/**
- * Created by aarta on 2018-02-26.
- */
-
 public class MovieDetails implements Parcelable {
     public static final Parcelable.Creator CREATOR = new Parcelable.Creator() {
         public MovieInfo createFromParcel(Parcel in) {
@@ -22,14 +18,16 @@ public class MovieDetails implements Parcelable {
     private String title;
     private String releaseDate;
     private String voteAverage;
+    private String voteCount;
     private String overview;
 
     public MovieDetails(String moviePosterUrl, String title, String releaseDate,
-                        String voteAverage, String overview) {
+                        String voteAverage, String voteCount, String overview) {
         this.moviePosterUrl = moviePosterUrl;
         this.title = title;
         this.releaseDate = releaseDate;
         this.voteAverage = voteAverage;
+        this.voteCount = voteCount;
         this.overview = overview;
     }
 
@@ -38,6 +36,7 @@ public class MovieDetails implements Parcelable {
         this.title = in.readString();
         this.releaseDate = in.readString();
         this.voteAverage = in.readString();
+        this.voteCount = in.readString();
         this.overview = in.readString();
     }
 
@@ -57,6 +56,10 @@ public class MovieDetails implements Parcelable {
         return voteAverage;
     }
 
+    public String getVoteCount() {
+        return voteCount;
+    }
+
     public String getOverview() {
         return overview;
     }
@@ -67,6 +70,7 @@ public class MovieDetails implements Parcelable {
         dest.writeString(this.title);
         dest.writeString(this.releaseDate);
         dest.writeString(this.voteAverage);
+        dest.writeString(this.voteCount);
         dest.writeString(this.overview);
     }
 

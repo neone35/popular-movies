@@ -11,10 +11,6 @@ import org.json.JSONObject;
 
 import static android.content.ContentValues.TAG;
 
-/**
- * Created by aarta on 2018-02-24.
- */
-
 public class MovieDBJsonUtils {
 
     public static final String MOVIE_DB_POSTER_PATH = "poster_path";
@@ -66,15 +62,18 @@ public class MovieDBJsonUtils {
         final String MOVIEDB_TITLE = "original_title";
         final String MOVIEDB_RELEASE_DATE = "release_date";
         final String MOVIEDB_VOTE_AVERAGE = "vote_average";
+        final String MOVIEDB_VOTE_COUNT = "vote_count";
         final String MOVIEDB_OVERVIEW = "overview";
 
         JSONObject detailsJSONObject = new JSONObject(detailsJsonStr);
         String movieTitle = detailsJSONObject.getString(MOVIEDB_TITLE);
         String movieReleaseDate = detailsJSONObject.getString(MOVIEDB_RELEASE_DATE);
         String movieVoteAverage = detailsJSONObject.getString(MOVIEDB_VOTE_AVERAGE);
+        String movieVoteCount = detailsJSONObject.getString(MOVIEDB_VOTE_COUNT);
         String movieOverview = detailsJSONObject.getString(MOVIEDB_OVERVIEW);
         return new MovieDetails(
-                movieFullUrl, movieTitle, movieReleaseDate, movieVoteAverage, movieOverview);
+                movieFullUrl, movieTitle, movieReleaseDate,
+                movieVoteAverage, movieVoteCount, movieOverview);
     }
 
 }
