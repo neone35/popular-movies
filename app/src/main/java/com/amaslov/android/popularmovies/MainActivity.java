@@ -3,9 +3,12 @@ package com.amaslov.android.popularmovies;
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.ProgressDialog;
+import android.content.Context;
 import android.content.Intent;
 import android.content.res.Configuration;
 import android.databinding.DataBindingUtil;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.os.AsyncTask;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -43,8 +46,18 @@ public class MainActivity extends AppCompatActivity implements MoviePosterAdapte
         super.onCreate(savedInstanceState);
         mainBinding = DataBindingUtil.setContentView(this, R.layout.activity_main);
         actionBarSetup();
-        recyclerViewSetup();
-        radioGroupListenerSetup();
+        Toast noInternetToast = Toast.makeText(
+                this,
+                "You have no internet connection",
+                Toast.LENGTH_LONG);
+        radioGroupListenerSetup(noInternetToast);
+    }
+
+    public boolean isOnline() {
+        ConnectivityManager cm =
+                (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
+        NetworkInfo netInfo = cm.getActiveNetworkInfo();
+        return netInfo != null && netInfo.isConnectedOrConnecting();
     }
 
     private void actionBarSetup() {
@@ -53,20 +66,35 @@ public class MainActivity extends AppCompatActivity implements MoviePosterAdapte
         getSupportActionBar().setDisplayUseLogoEnabled(true);
     }
 
-    private void radioGroupListenerSetup() {
-        displayMoviePosters(MovieDBUrlUtils.MOVIE_DB_PATH_POPULAR); //default
+    private void radioGroupListenerSetup(final Toast noInternetToast) {
+        if (isOnline()) {
+            displayMoviePosters(MovieDBUrlUtils.MOVIE_DB_PATH_POPULAR); //default
+        } else {
+            noInternetToast.show();
+        }
         mainBinding.popularTopRadioGroup.setOnCheckedChangeListener(new RadioGroup.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(RadioGroup radioGroup, int checkedId) {
-                Log.d(getLocalClassName(), "onCheckedChanged: " + checkedId);
                 switch (checkedId) {
                     case R.id.rb_popular:
+                        if (!isOnline()) {
+                            noInternetToast.show();
+                            break;
+                        }
                         displayMoviePosters(MovieDBUrlUtils.MOVIE_DB_PATH_POPULAR);
                         break;
                     case R.id.rb_top_rated:
+                        if (!isOnline()) {
+                            noInternetToast.show();
+                            break;
+                        }
                         displayMoviePosters(MovieDBUrlUtils.MOVIE_DB_PATH_TOP_RATED);
                         break;
                     case R.id.rb_upcoming:
+                        if (!isOnline()) {
+                            noInternetToast.show();
+                            break;
+                        }
                         displayMoviePosters(MovieDBUrlUtils.MOVIE_DB_PATH_UPCOMING);
                         break;
                 }
@@ -93,6 +121,8 @@ public class MainActivity extends AppCompatActivity implements MoviePosterAdapte
     }
 
     private void displayMoviePosters(String sortBy) {
+        recyclerViewSetup();
+
         String configUrl = MovieDBUrlUtils.getConfigUrl();
         String moviesUrl = MovieDBUrlUtils.getMoviesUrl(sortBy);
         String[] configAndUrls = {configUrl, moviesUrl};
