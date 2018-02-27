@@ -5,4 +5,8 @@
     <string name="release_date">Release date</string>
     <string name="average_vote">Average vote</string>
     <string name="votes">Votes</string>
+
+    <string name="getting_movies">Getting movies</string>
+    <string name="getting_movie_details">Getting movie details</string>
+    <string name="please_wait">Please wait...</string>
 </resources>

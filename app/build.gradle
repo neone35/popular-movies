@@ -33,6 +33,7 @@ dependencies {
     implementation 'com.android.support:recyclerview-v7:27.0.2'
     compile 'com.squareup.picasso:picasso:2.6.0-SNAPSHOT'
     compile 'com.squareup.okhttp3:okhttp:3.9.1'
+    compile 'com.squareup.retrofit2:retrofit:2.3.0'
 
     testImplementation 'junit:junit:4.12'
     androidTestImplementation 'com.android.support.test:runner:1.0.1'

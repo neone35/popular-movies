@@ -9,6 +9,7 @@ import android.app.ProgressDialog;
 import android.content.Context;
 import android.os.AsyncTask;
 
+import com.amaslov.android.popularmovies.R;
 import com.amaslov.android.popularmovies.parcelables.MovieDetails;
 import com.amaslov.android.popularmovies.utilities.MovieDBJsonUtils;
 import com.amaslov.android.popularmovies.utilities.MovieDBUrlUtils;
@@ -28,8 +29,8 @@ public class MovieDetailsTask extends AsyncTask<String[], Void, MovieDetails> {
     @Override
     protected void onPreExecute() {
         dialog = new ProgressDialog(mContext);
-        dialog.setTitle("Getting movie details...");
-        dialog.setMessage("Please wait...");
+        dialog.setTitle(R.string.getting_movie_details);
+        dialog.setMessage(mContext.getResources().getString(R.string.please_wait));
         dialog.setIndeterminate(true);
         dialog.show();
     }
