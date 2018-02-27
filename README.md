@@ -28,7 +28,7 @@ To become an Android developer, you must know how to bring particular mobile exp
   * release date
 
 ## Instructions
-1. Add API key at utilities/MovieDBUrlUtils.java
+1. Add API key at gradle. See [how to](https://technobells.com/best-way-to-store-your-api-keys-for-your-android-studio-project-e4b5e8bb7d23)
 2. Start application
 
 
