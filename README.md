@@ -9,6 +9,7 @@ To become an Android developer, you must know how to bring particular mobile exp
 
 ## Screenshots
 [![Popular movies main activity](https://thumb.ibb.co/m8Ow8H/Screenshot_1519678001.png)](https://ibb.co/m8Ow8H)
+[![Popular movies landscape](https://thumb.ibb.co/bRmSiH/Screenshot_1519750694.png)](https://ibb.co/bRmSiH)
 [![Popular movies details activity](https://thumb.ibb.co/gqUshc/Screenshot_1519678043.png)](https://ibb.co/gqUshc)
 
 ## What Did I Learn?
