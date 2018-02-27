@@ -73,6 +73,7 @@
                     android:layout_marginRight="24dp"
                     android:layout_marginTop="8dp"
                     android:textSize="18sp"
+                    app:layout_constraintBottom_toTopOf="@+id/tv_vote_average_title"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintTop_toBottomOf="@+id/tv_date_title"
                     tools:text="2014-09-10" />
@@ -86,6 +87,7 @@
                     android:layout_marginStart="16dp"
                     android:layout_marginTop="24dp"
                     android:text="@string/release_date"
+                    app:layout_constraintBottom_toTopOf="@+id/tv_date"
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintTop_toTopOf="parent"
                     tools:text="Release date" />
@@ -95,11 +97,10 @@
                     style="@style/movieDetailsLabel"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_marginLeft="16dp"
-                    android:layout_marginStart="16dp"
                     android:layout_marginTop="24dp"
                     android:text="@string/average_vote"
-                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintBottom_toTopOf="@+id/tv_average_vote_append"
+                    app:layout_constraintStart_toStartOf="@+id/tv_date_title"
                     app:layout_constraintTop_toBottomOf="@+id/tv_date"
                     tools:text="Average vote" />
 
@@ -110,6 +111,7 @@
                     android:layout_height="wrap_content"
                     android:layout_marginTop="8dp"
                     android:text="@string/vote_average_append"
+                    app:layout_constraintBottom_toTopOf="@+id/tv_vote_count_label"
                     app:layout_constraintEnd_toEndOf="@+id/tv_date"
                     app:layout_constraintTop_toBottomOf="@+id/tv_vote_average_title"
                     tools:text="7 / 10" />
@@ -119,11 +121,10 @@
                     style="@style/movieDetailsLabel"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_marginLeft="16dp"
-                    android:layout_marginStart="16dp"
                     android:layout_marginTop="24dp"
                     android:text="@string/votes"
-                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintBottom_toTopOf="@+id/tv_vote_count"
+                    app:layout_constraintStart_toStartOf="@+id/tv_vote_average_title"
                     app:layout_constraintTop_toBottomOf="@+id/tv_average_vote_append"
                     tools:text="Votes" />
 
@@ -132,7 +133,9 @@
                     style="@style/movieDetails"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
+                    android:layout_marginBottom="24dp"
                     android:layout_marginTop="8dp"
+                    app:layout_constraintBottom_toBottomOf="parent"
                     app:layout_constraintEnd_toEndOf="@+id/tv_average_vote_append"
                     app:layout_constraintTop_toBottomOf="@+id/tv_vote_count_label"
                     tools:text="7098" />

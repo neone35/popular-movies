@@ -9,10 +9,6 @@ import android.widget.ImageView;
 import com.amaslov.android.popularmovies.parcelables.MovieInfo;
 import com.squareup.picasso.Picasso;
 
-/**
- * Created by aarta on 2018-02-25.
- */
-
 public class MoviePosterAdapter extends RecyclerView.Adapter<MoviePosterAdapter.ViewHolder> {
     private static final String TAG = "MoviePosterAdapter";
     private static MovieInfo movie;
@@ -33,7 +29,6 @@ public class MoviePosterAdapter extends RecyclerView.Adapter<MoviePosterAdapter.
 
     @Override
     public ViewHolder onCreateViewHolder(ViewGroup viewGroup, int viewType) {
-        // Create a new view.
         View v = LayoutInflater.from(viewGroup.getContext())
                 .inflate(R.layout.grid_poster_item, viewGroup, false);
         return new ViewHolder(v);
@@ -60,13 +55,13 @@ public class MoviePosterAdapter extends RecyclerView.Adapter<MoviePosterAdapter.
     public class ViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
         private final ImageView posterImageView;
 
-        public ViewHolder(View view) {
+        private ViewHolder(View view) {
             super(view);
             view.setOnClickListener(this);
-            posterImageView = (ImageView) view.findViewById(R.id.posterImageView);
+            posterImageView = view.findViewById(R.id.posterImageView);
         }
 
-        public ImageView getImageView() {
+        private ImageView getImageView() {
             return posterImageView;
         }
 

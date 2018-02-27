@@ -9,9 +9,14 @@ import android.provider.ContactsContract;
 import android.support.annotation.NonNull;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.widget.Toast;
 
+import com.amaslov.android.popularmovies.asynctasks.MovieDetailsTask;
+import com.amaslov.android.popularmovies.asynctasks.MovieInfoTask;
+import com.amaslov.android.popularmovies.asynctasks.OnEventListener;
 import com.amaslov.android.popularmovies.databinding.ActivityMovieDetailsBinding;
 import com.amaslov.android.popularmovies.parcelables.MovieDetails;
+import com.amaslov.android.popularmovies.parcelables.MovieInfo;
 import com.amaslov.android.popularmovies.utilities.MovieDBJsonUtils;
 import com.amaslov.android.popularmovies.utilities.MovieDBUrlUtils;
 import com.squareup.picasso.Picasso;
@@ -40,62 +45,33 @@ public class MovieDetailsActivity extends AppCompatActivity {
 
     private void displayMovieDetails(String movieId, String movieFullUrl) {
         String[] idAndUrl = {movieId, movieFullUrl};
-        new movieDetailsAsyncTask().execute(idAndUrl, null, null);
-    }
-
-    @SuppressLint("StaticFieldLeak")
-    private class movieDetailsAsyncTask extends AsyncTask<String[], Void, MovieDetails> {
-        ProgressDialog dialog;
-
-        @Override
-        protected void onPreExecute() {
-            dialog = new ProgressDialog(MovieDetailsActivity.this);
-            dialog.setTitle("Getting movie details...");
-            dialog.setMessage("Please wait...");
-            dialog.setIndeterminate(true);
-            dialog.show();
-        }
-
-        @Override
-        protected MovieDetails doInBackground(String[]... strings) {
-            String[] idAndUrl = strings[0];
-            String movieDetailsUrl = MovieDBUrlUtils.getDetailsUrl(idAndUrl[0]);
-            String moviePosterFullUrl = idAndUrl[1];
-            OkHttpClient client = new OkHttpClient();
-            Request reqMovieDetails = new Request.Builder()
-                    .url(movieDetailsUrl)
-                    .get()
-                    .build();
-            try {
-                Response resMovieDetails = client.newCall(reqMovieDetails).execute();
-                String resDetailsJSON = resMovieDetails.body().string();
-                return MovieDBJsonUtils
-                        .getMovieDetails(resDetailsJSON, moviePosterFullUrl);
-            } catch (Exception e) {
-                e.printStackTrace();
-                return null;
+        MovieDetailsTask movieDetailsTask = new MovieDetailsTask(this, new OnEventListener<MovieDetails>() {
+            @Override
+            public void onSuccess(MovieDetails movieDetails) {
+                String posterUrl = movieDetails.getMoviePosterUrl();
+                String title = movieDetails.getTitle();
+                String date = movieDetails.getMovieReleaseDate();
+                String voteAverage = movieDetails.getVoteAverage() + " / 10";
+                String voteCount = movieDetails.getVoteCount();
+                String overview = movieDetails.getOverview();
+                Picasso.with(MovieDetailsActivity.this)
+                        .load(posterUrl)
+                        .placeholder(R.drawable.poster_placeholder)
+                        .centerCrop()
+                        .resize(200, 300)
+                        .into(activityMovieDetailsBinding.ivPoster);
+                activityMovieDetailsBinding.tvTitle.setText(title);
+                activityMovieDetailsBinding.tvDate.setText(date);
+                activityMovieDetailsBinding.tvAverageVoteAppend.setText(voteAverage);
+                activityMovieDetailsBinding.tvVoteCount.setText(voteCount);
+                activityMovieDetailsBinding.tvOverview.setText(overview);
             }
-        }
 
-        protected void onPostExecute(MovieDetails movieDetails) {
-            dialog.dismiss();
-            String posterUrl = movieDetails.getMoviePosterUrl();
-            String title = movieDetails.getTitle();
-            String date = movieDetails.getMovieReleaseDate();
-            String voteAverage = movieDetails.getVoteAverage() + " / 10";
-            String voteCount = movieDetails.getVoteCount();
-            String overview = movieDetails.getOverview();
-            Picasso.with(MovieDetailsActivity.this)
-                    .load(posterUrl)
-                    .placeholder(R.drawable.poster_placeholder)
-                    .centerCrop()
-                    .resize(200, 300)
-                    .into(activityMovieDetailsBinding.ivPoster);
-            activityMovieDetailsBinding.tvTitle.setText(title);
-            activityMovieDetailsBinding.tvDate.setText(date);
-            activityMovieDetailsBinding.tvAverageVoteAppend.setText(voteAverage);
-            activityMovieDetailsBinding.tvVoteCount.setText(voteCount);
-            activityMovieDetailsBinding.tvOverview.setText(overview);
-        }
+            @Override
+            public void onFailure(Exception e) {
+                Toast.makeText(getApplicationContext(), "ERROR: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+            }
+        });
+        movieDetailsTask.execute(idAndUrl, null, null);
     }
 }

@@ -1,8 +1,10 @@
 package com.amaslov.android.popularmovies;
 
 import android.annotation.SuppressLint;
+import android.app.Activity;
 import android.app.ProgressDialog;
 import android.content.Intent;
+import android.content.res.Configuration;
 import android.databinding.DataBindingUtil;
 import android.os.AsyncTask;
 import android.support.v7.app.AppCompatActivity;
@@ -13,7 +15,10 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.RadioGroup;
+import android.widget.Toast;
 
+import com.amaslov.android.popularmovies.asynctasks.MovieInfoTask;
+import com.amaslov.android.popularmovies.asynctasks.OnEventListener;
 import com.amaslov.android.popularmovies.databinding.ActivityMainBinding;
 import com.amaslov.android.popularmovies.parcelables.MovieInfo;
 import com.amaslov.android.popularmovies.utilities.MovieDBJsonUtils;
@@ -28,7 +33,8 @@ public class MainActivity extends AppCompatActivity implements MoviePosterAdapte
 
     public static final String EXTRA_MOVIE_ID = "movie_id";
     public static final String EXTRA_MOVIE_FULL_URL = "movie_poster_full_url";
-    private static final int GRID_SPAN_COUNT = 3;
+    private static final int GRID_SPAN_COUNT_PORTRAIT = 3;
+    private static final int GRID_SPAN_COUNT_LANDSCAPE = 5;
     ActivityMainBinding mainBinding;
     private RecyclerView posterRecyclerView;
 
@@ -70,16 +76,41 @@ public class MainActivity extends AppCompatActivity implements MoviePosterAdapte
 
     private void recyclerViewSetup() {
         posterRecyclerView = mainBinding.rvPosters;
-        GridLayoutManager gridLayoutManager = new GridLayoutManager(this, GRID_SPAN_COUNT);
+        GridLayoutManager gridLayoutManager = gridLayoutWithOrientation();
         posterRecyclerView.setLayoutManager(gridLayoutManager);
         posterRecyclerView.setHasFixedSize(true);
+    }
+
+    private GridLayoutManager gridLayoutWithOrientation() {
+        GridLayoutManager gridLayoutManager = null;
+        int orientation = this.getResources().getConfiguration().orientation;
+        if (orientation == Configuration.ORIENTATION_PORTRAIT) {
+            gridLayoutManager = new GridLayoutManager(this, GRID_SPAN_COUNT_PORTRAIT);
+        } else if (orientation == Configuration.ORIENTATION_LANDSCAPE) {
+            gridLayoutManager = new GridLayoutManager(this, GRID_SPAN_COUNT_LANDSCAPE);
+        }
+        return gridLayoutManager;
     }
 
     private void displayMoviePosters(String sortBy) {
         String configUrl = MovieDBUrlUtils.getConfigUrl();
         String moviesUrl = MovieDBUrlUtils.getMoviesUrl(sortBy);
         String[] configAndUrls = {configUrl, moviesUrl};
-        new movieInfoAsyncTask().execute(configAndUrls, null, null);
+
+        MovieInfoTask movieInfoTask = new MovieInfoTask(this, new OnEventListener<MovieInfo>() {
+            @Override
+            public void onSuccess(MovieInfo moviesInfo) {
+                MoviePosterAdapter moviePosterAdapter = new MoviePosterAdapter(MainActivity.this, moviesInfo);
+                posterRecyclerView.setAdapter(moviePosterAdapter);
+                moviePosterAdapter.notifyDataSetChanged();
+            }
+
+            @Override
+            public void onFailure(Exception e) {
+                Toast.makeText(getApplicationContext(), "ERROR: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+            }
+        });
+        movieInfoTask.execute(configAndUrls, null, null);
     }
 
     @Override
@@ -110,58 +141,5 @@ public class MainActivity extends AppCompatActivity implements MoviePosterAdapte
         }
     }
 
-    @SuppressLint("StaticFieldLeak")
-    private class movieInfoAsyncTask extends AsyncTask<String[], Void, MovieInfo> {
-        ProgressDialog dialog;
 
-        @Override
-        protected void onPreExecute() {
-            dialog = new ProgressDialog(MainActivity.this);
-            dialog.setTitle("Getting movies...");
-            dialog.setMessage("Please wait...");
-            dialog.setIndeterminate(true);
-            dialog.show();
-        }
-
-        protected MovieInfo doInBackground(String[]... strings) {
-            String[] urls = strings[0];
-            OkHttpClient client = new OkHttpClient();
-            Request reqImageUrlConfig = new Request.Builder()
-                    .url(urls[0])
-                    .get()
-                    .build();
-            Request reqMoviePostersJPG = new Request.Builder()
-                    .url(urls[1])
-                    .get()
-                    .build();
-            try {
-                Response resImageUrlConfig = client.newCall(reqImageUrlConfig).execute();
-                Response resMoviePostersJPG = client.newCall(reqMoviePostersJPG).execute();
-
-                String resConfigJSON = resImageUrlConfig.body().string();
-                String resMoviesJSON = resMoviePostersJPG.body().string();
-                String imageUrlConfig = MovieDBJsonUtils
-                        .getImageUrl(resConfigJSON);
-                String[] moviePosterJPGs = MovieDBJsonUtils
-                        .getMovieValues(resMoviesJSON, MovieDBJsonUtils.MOVIE_DB_POSTER_PATH);
-                String[] movieIDs = MovieDBJsonUtils
-                        .getMovieValues(resMoviesJSON, MovieDBJsonUtils.MOVIE_DB_ID);
-                String[] fullImageUrls = new String[moviePosterJPGs.length];
-                for (int i = 0; i < fullImageUrls.length; i++) {
-                    fullImageUrls[i] = imageUrlConfig + moviePosterJPGs[i];
-                }
-                return new MovieInfo(fullImageUrls, movieIDs);
-            } catch (Exception e) {
-                e.printStackTrace();
-                return null;
-            }
-        }
-
-        protected void onPostExecute(MovieInfo moviesInfo) {
-            dialog.dismiss();
-            MoviePosterAdapter moviePosterAdapter = new MoviePosterAdapter(MainActivity.this, moviesInfo);
-            posterRecyclerView.setAdapter(moviePosterAdapter);
-            moviePosterAdapter.notifyDataSetChanged();
-        }
-    }
 }
