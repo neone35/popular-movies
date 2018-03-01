@@ -14,6 +14,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -66,6 +67,7 @@ public class MainActivity extends AppCompatActivity implements MoviePosterAdapte
         getSupportActionBar().setDisplayUseLogoEnabled(true);
     }
 
+
     private void radioGroupListenerSetup(final Toast noInternetToast) {
         if (isOnline()) {
             displayMoviePosters(MovieDBUrlUtils.MOVIE_DB_PATH_POPULAR); //default
@@ -104,20 +106,20 @@ public class MainActivity extends AppCompatActivity implements MoviePosterAdapte
 
     private void recyclerViewSetup() {
         posterRecyclerView = mainBinding.rvPosters;
-        GridLayoutManager gridLayoutManager = gridLayoutWithOrientation();
+        GridLayoutManager gridLayoutManager = new GridLayoutManager(this, numberOfColumns());
         posterRecyclerView.setLayoutManager(gridLayoutManager);
         posterRecyclerView.setHasFixedSize(true);
     }
 
-    private GridLayoutManager gridLayoutWithOrientation() {
-        GridLayoutManager gridLayoutManager = null;
-        int orientation = this.getResources().getConfiguration().orientation;
-        if (orientation == Configuration.ORIENTATION_PORTRAIT) {
-            gridLayoutManager = new GridLayoutManager(this, GRID_SPAN_COUNT_PORTRAIT);
-        } else if (orientation == Configuration.ORIENTATION_LANDSCAPE) {
-            gridLayoutManager = new GridLayoutManager(this, GRID_SPAN_COUNT_LANDSCAPE);
-        }
-        return gridLayoutManager;
+    private int numberOfColumns() {
+        DisplayMetrics displayMetrics = new DisplayMetrics();
+        getWindowManager().getDefaultDisplay().getMetrics(displayMetrics);
+        // You can change this divider to adjust the size of the poster
+        int widthDivider = 300;
+        int width = displayMetrics.widthPixels;
+        int nColumns = width / widthDivider;
+        if (nColumns < 2) return 2;
+        return nColumns;
     }
 
     private void displayMoviePosters(String sortBy) {

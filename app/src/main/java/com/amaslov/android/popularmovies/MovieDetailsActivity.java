@@ -45,20 +45,27 @@ public class MovieDetailsActivity extends AppCompatActivity {
 
     private void displayMovieDetails(String movieId, String movieFullUrl) {
         String[] idAndUrl = {movieId, movieFullUrl};
-        MovieDetailsTask movieDetailsTask = new MovieDetailsTask(this, new OnEventListener<MovieDetails>() {
+        MovieDetailsTask movieDetailsTask =
+                new MovieDetailsTask(this, new OnEventListener<MovieDetails>() {
             @Override
             public void onSuccess(MovieDetails movieDetails) {
                 String posterUrl = movieDetails.getMoviePosterUrl();
                 String title = movieDetails.getTitle();
                 String date = movieDetails.getMovieReleaseDate();
-                String voteAverage = movieDetails.getVoteAverage() + " / 10";
+                String voteAverage = movieDetails.getVoteAverage() + " " + getString(R.string.vote_average_out_of_ten);
                 String voteCount = movieDetails.getVoteCount();
                 String overview = movieDetails.getOverview();
+                int detailsPosterWidth =
+                        (int) (getResources().getDimension(R.dimen.details_poster_width) /
+                                getResources().getDisplayMetrics().density);
+                int detailsPosterHeight =
+                        (int) (getResources().getDimension(R.dimen.details_main_height) /
+                                getResources().getDisplayMetrics().density);
                 Picasso.with(MovieDetailsActivity.this)
                         .load(posterUrl)
                         .placeholder(R.drawable.poster_placeholder)
                         .centerCrop()
-                        .resize(R.dimen.details_poster_width, R.dimen.details_main_height)
+                        .resize(detailsPosterWidth, detailsPosterHeight)
                         .into(activityMovieDetailsBinding.ivPoster);
                 activityMovieDetailsBinding.tvTitle.setText(title);
                 activityMovieDetailsBinding.tvDate.setText(date);

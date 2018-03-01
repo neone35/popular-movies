@@ -1,6 +1,8 @@
 package com.amaslov.android.popularmovies;
 
+import android.content.Context;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -37,11 +39,18 @@ public class MoviePosterAdapter extends RecyclerView.Adapter<MoviePosterAdapter.
     @Override
     public void onBindViewHolder(ViewHolder viewHolder, final int position) {
 //        Log.d(TAG, "Element " + position + " set.");
+        ImageView ivContext = viewHolder.getImageView();
+        int mainPosterWidth =
+                (int) (ivContext.getResources().getDimension(R.dimen.main_poster_width) /
+                        ivContext.getResources().getDisplayMetrics().density);
+        int mainPosterHeight =
+                (int) (ivContext.getResources().getDimension(R.dimen.main_poster_height) /
+                        ivContext.getResources().getDisplayMetrics().density);
         Picasso.with(viewHolder.posterImageView.getContext())
                 .load(movie.getFullUrls()[position])
                 .placeholder(R.drawable.poster_placeholder)
                 .centerCrop()
-                .resize(R.dimen.main_poster_width, R.dimen.main_poster_height)
+                .resize(mainPosterWidth, mainPosterHeight)
                 .into(viewHolder.getImageView());
     }
 

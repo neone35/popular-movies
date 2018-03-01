@@ -9,4 +9,5 @@
     <string name="getting_movies">Getting movies</string>
     <string name="getting_movie_details">Getting movie details</string>
     <string name="please_wait">Please wait...</string>
+    <string name="vote_average_out_of_ten">/ 10</string>
 </resources>
