@@ -58,7 +58,7 @@ public class MovieDetailsActivity extends AppCompatActivity {
                         .load(posterUrl)
                         .placeholder(R.drawable.poster_placeholder)
                         .centerCrop()
-                        .resize(200, 300)
+                        .resize(R.dimen.details_poster_width, R.dimen.details_main_height)
                         .into(activityMovieDetailsBinding.ivPoster);
                 activityMovieDetailsBinding.tvTitle.setText(title);
                 activityMovieDetailsBinding.tvDate.setText(date);

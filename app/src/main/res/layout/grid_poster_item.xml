@@ -5,8 +5,8 @@
 
     <ImageView
         android:id="@+id/posterImageView"
-        android:layout_width="150dp"
-        android:layout_height="200dp"
+        android:layout_width="@dimen/main_poster_width"
+        android:layout_height="@dimen/main_poster_height"
         android:background="@drawable/poster_stroke" />
 
 </GridLayout>

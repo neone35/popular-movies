@@ -16,4 +16,6 @@
     <dimen name="details_title_horizontal">8dp</dimen>
     <dimen name="details_overview_vertical">16dp</dimen>
     <dimen name="details_date_text_size">18sp</dimen>
+    <dimen name="main_poster_width">150dp</dimen>
+    <dimen name="main_poster_height">200dp</dimen>
 </resources>

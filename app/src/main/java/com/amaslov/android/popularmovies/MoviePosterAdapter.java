@@ -41,7 +41,7 @@ public class MoviePosterAdapter extends RecyclerView.Adapter<MoviePosterAdapter.
                 .load(movie.getFullUrls()[position])
                 .placeholder(R.drawable.poster_placeholder)
                 .centerCrop()
-                .resize(150, 200)
+                .resize(R.dimen.main_poster_width, R.dimen.main_poster_height)
                 .into(viewHolder.getImageView());
     }
 
