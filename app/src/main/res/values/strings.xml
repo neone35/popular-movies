@@ -8,6 +8,10 @@
 
     <string name="getting_movies">Getting movies</string>
     <string name="getting_movie_details">Getting movie details</string>
-    <string name="please_wait">Please wait...</string>
+    <string name="please_wait">Please wait&#8230;</string>
     <string name="vote_average_out_of_ten">/ 10</string>
+    <string name="no_internet_msg">You have no internet connection</string>
+    <string name="popular">Popular</string>
+    <string name="top_rated">Top rated</string>
+    <string name="upcoming">Upcoming</string>
 </resources>

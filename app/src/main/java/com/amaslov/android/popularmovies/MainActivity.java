@@ -1,15 +1,12 @@
 package com.amaslov.android.popularmovies;
 
-import android.annotation.SuppressLint;
-import android.app.Activity;
-import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
-import android.content.res.Configuration;
 import android.databinding.DataBindingUtil;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
-import android.os.AsyncTask;
+import android.support.design.widget.CoordinatorLayout;
+import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.GridLayoutManager;
@@ -18,6 +15,8 @@ import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
+import android.widget.Adapter;
 import android.widget.RadioGroup;
 import android.widget.Toast;
 
@@ -25,20 +24,13 @@ import com.amaslov.android.popularmovies.asynctasks.MovieInfoTask;
 import com.amaslov.android.popularmovies.asynctasks.OnEventListener;
 import com.amaslov.android.popularmovies.databinding.ActivityMainBinding;
 import com.amaslov.android.popularmovies.parcelables.MovieInfo;
-import com.amaslov.android.popularmovies.utilities.MovieDBJsonUtils;
 import com.amaslov.android.popularmovies.utilities.MovieDBUrlUtils;
 
-
-import okhttp3.OkHttpClient;
-import okhttp3.Request;
-import okhttp3.Response;
 
 public class MainActivity extends AppCompatActivity implements MoviePosterAdapter.ListItemClickListener {
 
     public static final String EXTRA_MOVIE_ID = "movie_id";
     public static final String EXTRA_MOVIE_FULL_URL = "movie_poster_full_url";
-    private static final int GRID_SPAN_COUNT_PORTRAIT = 3;
-    private static final int GRID_SPAN_COUNT_LANDSCAPE = 5;
     ActivityMainBinding mainBinding;
     private RecyclerView posterRecyclerView;
 
@@ -47,56 +39,61 @@ public class MainActivity extends AppCompatActivity implements MoviePosterAdapte
         super.onCreate(savedInstanceState);
         mainBinding = DataBindingUtil.setContentView(this, R.layout.activity_main);
         actionBarSetup();
-        Toast noInternetToast = Toast.makeText(
-                this,
-                "You have no internet connection",
-                Toast.LENGTH_LONG);
-        radioGroupListenerSetup(noInternetToast);
+    }
+
+    @Override
+    protected void onStart() {
+        super.onStart();
+        recyclerViewSetup();
+        final Snackbar noInternetSnack = Snackbar
+                .make(mainBinding.mainConstrainLayout,
+                        getString(R.string.no_internet_msg), Snackbar.LENGTH_LONG);
+        noInternetSnack.setAction("UNDO", new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                noInternetSnack.dismiss();
+            }
+        });
+
+        if (isOnline()) {
+            noInternetSnack.dismiss();
+            radioGroupListenerSetup();
+            Log.d(getLocalClassName(), "onStart: " + noInternetSnack.isShown());
+        } else {
+            noInternetSnack.show();
+            if (posterRecyclerView.getAdapter() != null)
+                posterRecyclerView.setAdapter(null);
+        }
     }
 
     public boolean isOnline() {
         ConnectivityManager cm =
                 (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
-        NetworkInfo netInfo = cm.getActiveNetworkInfo();
+        NetworkInfo netInfo = cm != null ? cm.getActiveNetworkInfo() : null;
         return netInfo != null && netInfo.isConnectedOrConnecting();
     }
 
     private void actionBarSetup() {
-        getSupportActionBar().setDisplayShowHomeEnabled(true);
-        getSupportActionBar().setLogo(R.mipmap.ic_launcher);
-        getSupportActionBar().setDisplayUseLogoEnabled(true);
+        if (getSupportActionBar() != null) {
+            getSupportActionBar().setDisplayShowHomeEnabled(true);
+            getSupportActionBar().setLogo(R.mipmap.ic_launcher);
+            getSupportActionBar().setDisplayUseLogoEnabled(true);
+        }
     }
 
-
-    private void radioGroupListenerSetup(final Toast noInternetToast) {
-        if (isOnline()) {
-            displayMoviePosters(MovieDBUrlUtils.MOVIE_DB_PATH_POPULAR); //default
-        } else {
-            noInternetToast.show();
-        }
+    private void radioGroupListenerSetup() {
+        displayMoviePosters(MovieDBUrlUtils.MOVIE_DB_PATH_POPULAR); //default
         mainBinding.popularTopRadioGroup.setOnCheckedChangeListener(new RadioGroup.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(RadioGroup radioGroup, int checkedId) {
                 switch (checkedId) {
                     case R.id.rb_popular:
-                        if (!isOnline()) {
-                            noInternetToast.show();
-                            break;
-                        }
                         displayMoviePosters(MovieDBUrlUtils.MOVIE_DB_PATH_POPULAR);
                         break;
                     case R.id.rb_top_rated:
-                        if (!isOnline()) {
-                            noInternetToast.show();
-                            break;
-                        }
                         displayMoviePosters(MovieDBUrlUtils.MOVIE_DB_PATH_TOP_RATED);
                         break;
                     case R.id.rb_upcoming:
-                        if (!isOnline()) {
-                            noInternetToast.show();
-                            break;
-                        }
                         displayMoviePosters(MovieDBUrlUtils.MOVIE_DB_PATH_UPCOMING);
                         break;
                 }
@@ -123,8 +120,6 @@ public class MainActivity extends AppCompatActivity implements MoviePosterAdapte
     }
 
     private void displayMoviePosters(String sortBy) {
-        recyclerViewSetup();
-
         String configUrl = MovieDBUrlUtils.getConfigUrl();
         String moviesUrl = MovieDBUrlUtils.getMoviesUrl(sortBy);
         String[] configAndUrls = {configUrl, moviesUrl};
@@ -147,11 +142,11 @@ public class MainActivity extends AppCompatActivity implements MoviePosterAdapte
 
     @Override
     public void onListItemClick(String movieId, String movieFullUrl) {
-        Intent intent = new Intent(this, MovieDetailsActivity.class);
+        Intent movieDetailsIntent = new Intent(this, MovieDetailsActivity.class);
         Log.d(getLocalClassName(), "onListItemClick: " + movieId);
-        intent.putExtra(EXTRA_MOVIE_ID, movieId);
-        intent.putExtra(EXTRA_MOVIE_FULL_URL, movieFullUrl);
-        startActivity(intent);
+        movieDetailsIntent.putExtra(EXTRA_MOVIE_ID, movieId);
+        movieDetailsIntent.putExtra(EXTRA_MOVIE_FULL_URL, movieFullUrl);
+        startActivity(movieDetailsIntent);
     }
 
     @Override
