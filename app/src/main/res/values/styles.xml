@@ -14,15 +14,21 @@
     </style>
 
     <style name="movieDetailsLabel" parent="movieTitle">
-        <item name="android:textSize">20sp</item>
+        <item name="android:textSize">16sp</item>
         <item name="android:textColor">@color/colorWhite</item>
         <item name="android:fontFamily">sans-serif-condensed</item>
     </style>
 
     <style name="movieDetails" parent="TextAppearance.AppCompat.Caption">
-        <item name="android:textSize">24sp</item>
+        <item name="android:textSize">20sp</item>
         <item name="android:textColor">@color/colorAccent</item>
         <item name="android:fontFamily">sans-serif-smallcaps</item>
+    </style>
+
+    <style name="detailsButtons">
+        <item name="android:layout_width">0dp</item>
+        <item name="android:layout_height">50dp</item>
+        <item name="android:background">@drawable/button_details_selector</item>
     </style>
 
 </resources>

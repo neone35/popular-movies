@@ -17,7 +17,7 @@
             <ImageView
                 android:id="@+id/iv_poster"
                 android:layout_width="@dimen/details_poster_width"
-                android:layout_height="@dimen/details_main_height"
+                android:layout_height="@dimen/details_poster_height"
                 android:layout_marginLeft="@dimen/details_main_vertical"
                 android:layout_marginStart="@dimen/details_main_vertical"
                 android:layout_marginTop="@dimen/details_main_horizontal"
@@ -59,7 +59,7 @@
                 android:layout_height="@dimen/details_main_height"
                 android:layout_marginEnd="@dimen/details_main_vertical"
                 android:layout_marginRight="@dimen/details_main_vertical"
-                android:background="@color/colorPrimaryDark"
+                android:background="@drawable/layout_border_side"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toEndOf="@+id/iv_poster"
                 app:layout_constraintTop_toTopOf="@+id/iv_poster">
@@ -141,6 +141,48 @@
                     tools:text="7098" />
 
             </android.support.constraint.ConstraintLayout>
+
+            <ImageButton
+                android:id="@+id/ib_trailers"
+                style="@style/detailsButtons"
+                android:contentDescription="@string/trailers"
+                app:layout_constraintEnd_toStartOf="@+id/ib_reviews"
+                app:layout_constraintHorizontal_bias="0.5"
+                app:layout_constraintStart_toEndOf="@+id/iv_poster"
+                app:layout_constraintStart_toStartOf="@+id/ib_description"
+                app:layout_constraintTop_toBottomOf="@+id/ib_description"
+                app:srcCompat="@drawable/ic_movie_roll" />
+
+            <ImageButton
+                android:id="@+id/ib_description"
+                style="@style/detailsButtons"
+                android:layout_width="0dp"
+                android:contentDescription="@string/description"
+                app:layout_constraintEnd_toStartOf="@+id/ib_favorite"
+                app:layout_constraintHorizontal_bias="0.5"
+                app:layout_constraintStart_toEndOf="@+id/iv_poster"
+                app:layout_constraintStart_toStartOf="@+id/constraintLayout2"
+                app:layout_constraintTop_toBottomOf="@+id/constraintLayout2"
+                app:srcCompat="@drawable/ic_format_float_right" />
+
+            <ImageButton
+                android:id="@+id/ib_favorite"
+                style="@style/detailsButtons"
+                android:layout_width="0dp"
+                android:contentDescription="@string/favorite"
+                app:layout_constraintEnd_toEndOf="@+id/constraintLayout2"
+                app:layout_constraintStart_toEndOf="@+id/ib_description"
+                app:layout_constraintTop_toTopOf="@+id/ib_description"
+                app:srcCompat="@drawable/ic_star_outline" />
+
+            <ImageButton
+                android:id="@+id/ib_reviews"
+                style="@style/detailsButtons"
+                android:contentDescription="@string/read_reviews"
+                app:layout_constraintEnd_toEndOf="@+id/constraintLayout2"
+                app:layout_constraintStart_toEndOf="@+id/ib_trailers"
+                app:layout_constraintTop_toBottomOf="@+id/ib_description"
+                app:srcCompat="@drawable/ic_forum" />
 
         </android.support.constraint.ConstraintLayout>
 

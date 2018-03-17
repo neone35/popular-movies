@@ -33,27 +33,29 @@ public class MainActivity extends AppCompatActivity implements MoviePosterAdapte
     public static final String EXTRA_MOVIE_FULL_URL = "movie_poster_full_url";
     ActivityMainBinding mainBinding;
     private RecyclerView posterRecyclerView;
+    private Snackbar noInternetSnack = null;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         mainBinding = DataBindingUtil.setContentView(this, R.layout.activity_main);
         actionBarSetup();
+
+        noInternetSnack = Snackbar.make(mainBinding.mainConstrainLayout,
+                getString(R.string.no_internet_msg), Snackbar.LENGTH_LONG);
+        noInternetSnack.setAction(R.string.undo, new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                noInternetSnack.dismiss();
+            }
+        });
     }
 
     @Override
     protected void onStart() {
         super.onStart();
         recyclerViewSetup();
-        final Snackbar noInternetSnack = Snackbar
-                .make(mainBinding.mainConstrainLayout,
-                        getString(R.string.no_internet_msg), Snackbar.LENGTH_LONG);
-        noInternetSnack.setAction("UNDO", new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                noInternetSnack.dismiss();
-            }
-        });
 
         if (isOnline()) {
             noInternetSnack.dismiss();
@@ -134,7 +136,7 @@ public class MainActivity extends AppCompatActivity implements MoviePosterAdapte
 
             @Override
             public void onFailure(Exception e) {
-                Toast.makeText(getApplicationContext(), "ERROR: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+                noInternetSnack.show();
             }
         });
         movieInfoTask.execute(configAndUrls, null, null);

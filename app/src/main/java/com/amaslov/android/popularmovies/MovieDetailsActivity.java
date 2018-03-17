@@ -1,29 +1,17 @@
 package com.amaslov.android.popularmovies;
 
-import android.annotation.SuppressLint;
-import android.app.ProgressDialog;
 import android.content.Intent;
 import android.databinding.DataBindingUtil;
-import android.os.AsyncTask;
-import android.provider.ContactsContract;
-import android.support.annotation.NonNull;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.util.Log;
 import android.widget.Toast;
 
 import com.amaslov.android.popularmovies.asynctasks.MovieDetailsTask;
-import com.amaslov.android.popularmovies.asynctasks.MovieInfoTask;
 import com.amaslov.android.popularmovies.asynctasks.OnEventListener;
 import com.amaslov.android.popularmovies.databinding.ActivityMovieDetailsBinding;
 import com.amaslov.android.popularmovies.parcelables.MovieDetails;
-import com.amaslov.android.popularmovies.parcelables.MovieInfo;
-import com.amaslov.android.popularmovies.utilities.MovieDBJsonUtils;
-import com.amaslov.android.popularmovies.utilities.MovieDBUrlUtils;
 import com.squareup.picasso.Picasso;
-
-import okhttp3.OkHttpClient;
-import okhttp3.Request;
-import okhttp3.Response;
 
 public class MovieDetailsActivity extends AppCompatActivity {
 
@@ -34,6 +22,11 @@ public class MovieDetailsActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         activityMovieDetailsBinding = DataBindingUtil.setContentView(this, R.layout.activity_movie_details);
         receiveMainActivityIntent();
+        setDescriptionButtonActive();
+    }
+
+    private void setDescriptionButtonActive() {
+        activityMovieDetailsBinding.ibDescription.setBackgroundResource(R.drawable.button_details_press);
     }
 
     private void receiveMainActivityIntent() {
@@ -59,8 +52,9 @@ public class MovieDetailsActivity extends AppCompatActivity {
                         (int) (getResources().getDimension(R.dimen.details_poster_width) /
                                 getResources().getDisplayMetrics().density);
                 int detailsPosterHeight =
-                        (int) (getResources().getDimension(R.dimen.details_main_height) /
+                        (int) (getResources().getDimension(R.dimen.details_poster_height) /
                                 getResources().getDisplayMetrics().density);
+                Log.d(getLocalClassName(), "onSuccess: " + detailsPosterWidth + " " + detailsPosterHeight);
                 Picasso.with(MovieDetailsActivity.this)
                         .load(posterUrl)
                         .placeholder(R.drawable.poster_placeholder)
