@@ -17,8 +17,9 @@ android {
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
     }
-    buildTypes.each{
+    buildTypes.each {
         it.buildConfigField 'String', 'MOVIE_DB_API_KEY', movieDbApiKey
+        it.buildConfigField 'String', 'YOUTUBE_API_KEY', youtubeApiKey
     }
     repositories {
         jcenter()
@@ -46,7 +47,9 @@ dependencies {
     implementation 'com.squareup.picasso:picasso:2.6.0-SNAPSHOT'
     implementation 'com.squareup.okhttp3:okhttp:3.9.1'
     implementation 'com.squareup.retrofit2:retrofit:2.3.0'
+    implementation files('libs/YouTubeAndroidPlayerApi.jar')
 
+    implementation 'com.android.support:support-v4:27.1.0'
     testImplementation 'junit:junit:4.12'
     androidTestImplementation 'com.android.support.test:runner:1.0.1'
     androidTestImplementation 'com.android.support.test.espresso:espresso-core:3.0.1'

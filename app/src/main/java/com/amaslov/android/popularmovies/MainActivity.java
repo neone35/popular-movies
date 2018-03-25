@@ -31,10 +31,10 @@ public class MainActivity extends AppCompatActivity implements MoviePosterAdapte
 
     public static final String EXTRA_MOVIE_ID = "movie_id";
     public static final String EXTRA_MOVIE_FULL_URL = "movie_poster_full_url";
+    private static final String TAG = MainActivity.class.getName();
     ActivityMainBinding mainBinding;
     private RecyclerView posterRecyclerView;
     private Snackbar noInternetSnack = null;
-
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {

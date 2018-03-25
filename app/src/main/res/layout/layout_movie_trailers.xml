@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="utf-8"?>
+<android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:paddingBottom="@dimen/details_main_vertical">
+
+    <TextView
+        android:id="@+id/tv_title"
+        style="@style/movieTitle"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="@dimen/details_title_left"
+        android:layout_marginStart="@dimen/details_title_left"
+        android:layout_marginTop="8dp"
+        android:text="@string/trailers_title"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        tools:text="Trailers" />
+
+    <fragment
+        android:id="@+id/youtubeFragment"
+        android:name="com.google.android.youtube.player.YouTubePlayerSupportFragment"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginEnd="@dimen/details_overview_vertical"
+        android:layout_marginStart="@dimen/details_overview_vertical"
+        android:layout_marginTop="@dimen/details_main_horizontal"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/tv_title" />
+
+</android.support.constraint.ConstraintLayout>

@@ -25,7 +25,7 @@
         <item name="android:fontFamily">sans-serif-smallcaps</item>
     </style>
 
-    <style name="detailsButtons">
+    <style name="detailsButtonsSelector">
         <item name="android:layout_width">0dp</item>
         <item name="android:layout_height">50dp</item>
         <item name="android:background">@drawable/button_details_selector</item>

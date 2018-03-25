@@ -8,7 +8,6 @@ public class MovieDetails implements Parcelable {
         public MovieInfo createFromParcel(Parcel in) {
             return new MovieInfo(in);
         }
-
         public MovieInfo[] newArray(int size) {
             return new MovieInfo[size];
         }

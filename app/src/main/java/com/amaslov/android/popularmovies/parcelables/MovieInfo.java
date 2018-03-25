@@ -3,16 +3,12 @@ package com.amaslov.android.popularmovies.parcelables;
 import android.os.Parcel;
 import android.os.Parcelable;
 
-/**
- * Created by aarta on 2018-02-26.
- */
 
 public class MovieInfo implements Parcelable {
     public static final Parcelable.Creator CREATOR = new Parcelable.Creator() {
         public MovieInfo createFromParcel(Parcel in) {
             return new MovieInfo(in);
         }
-
         public MovieInfo[] newArray(int size) {
             return new MovieInfo[size];
         }
@@ -26,7 +22,7 @@ public class MovieInfo implements Parcelable {
         this.ids = ids;
     }
 
-    public MovieInfo(Parcel in) {
+    MovieInfo(Parcel in) {
         this.fullUrls = in.createStringArray();
         this.ids = in.createStringArray();
     }

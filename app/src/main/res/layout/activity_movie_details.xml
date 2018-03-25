@@ -5,6 +5,7 @@
     xmlns:tools="http://schemas.android.com/tools">
 
     <ScrollView
+        android:id="@+id/sv_main"
         android:layout_width="match_parent"
         android:layout_height="match_parent">
 
@@ -25,33 +26,24 @@
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent" />
 
-            <TextView
-                android:id="@+id/tv_title"
-                style="@style/movieTitle"
-                android:layout_width="wrap_content"
+            <include
+                android:id="@+id/inc_movie_overview"
+                layout="@layout/layout_movie_overview"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginLeft="@dimen/details_title_left"
-                android:layout_marginStart="@dimen/details_title_left"
-                android:layout_marginTop="@dimen/details_title_horizontal"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/iv_poster"
-                tools:text="Avatar" />
-
-
-            <TextView
-                android:id="@+id/tv_overview"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_marginBottom="@dimen/details_main_horizontal"
-                android:layout_marginEnd="@dimen/details_overview_vertical"
-                android:layout_marginStart="@dimen/details_overview_vertical"
-                android:layout_marginTop="@dimen/details_main_horizontal"
-                android:textSize="@dimen/details_overview_text_size"
-                app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/tv_title"
-                tools:text="Set in a post-apocalyptic world, young Thomas is deposited in a community of boys after his memory is erased, soon learning they're all trapped in a maze that will require him to join forces with fellow “runners” for a shot at escape." />
+                app:layout_constraintTop_toBottomOf="@+id/iv_poster" />
+
+            <include
+                android:id="@+id/inc_movie_trailers"
+                layout="@layout/layout_movie_trailers"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:visibility="invisible"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/iv_poster" />
 
             <android.support.constraint.ConstraintLayout
                 android:id="@+id/constraintLayout2"
@@ -144,7 +136,7 @@
 
             <ImageButton
                 android:id="@+id/ib_trailers"
-                style="@style/detailsButtons"
+                style="@style/detailsButtonsSelector"
                 android:contentDescription="@string/trailers"
                 app:layout_constraintEnd_toStartOf="@+id/ib_reviews"
                 app:layout_constraintHorizontal_bias="0.5"
@@ -155,11 +147,12 @@
 
             <ImageButton
                 android:id="@+id/ib_description"
-                style="@style/detailsButtons"
+                style="@style/detailsButtonsSelector"
                 android:layout_width="0dp"
                 android:contentDescription="@string/description"
                 app:layout_constraintEnd_toStartOf="@+id/ib_favorite"
                 app:layout_constraintHorizontal_bias="0.5"
+                app:layout_constraintHorizontal_chainStyle="spread_inside"
                 app:layout_constraintStart_toEndOf="@+id/iv_poster"
                 app:layout_constraintStart_toStartOf="@+id/constraintLayout2"
                 app:layout_constraintTop_toBottomOf="@+id/constraintLayout2"
@@ -167,7 +160,7 @@
 
             <ImageButton
                 android:id="@+id/ib_favorite"
-                style="@style/detailsButtons"
+                style="@style/detailsButtonsSelector"
                 android:layout_width="0dp"
                 android:contentDescription="@string/favorite"
                 app:layout_constraintEnd_toEndOf="@+id/constraintLayout2"
@@ -177,7 +170,7 @@
 
             <ImageButton
                 android:id="@+id/ib_reviews"
-                style="@style/detailsButtons"
+                style="@style/detailsButtonsSelector"
                 android:contentDescription="@string/read_reviews"
                 app:layout_constraintEnd_toEndOf="@+id/constraintLayout2"
                 app:layout_constraintStart_toEndOf="@+id/ib_trailers"
