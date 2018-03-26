@@ -55,9 +55,9 @@ public class MovieInfoTask extends AsyncTask<String[], Void, MovieInfo> {
             String imageUrlConfig = MovieDBJsonUtils
                     .getImageUrl(resConfigJSON);
             String[] moviePosterJPGs = MovieDBJsonUtils
-                    .getMovieValues(resMoviesJSON, MovieDBJsonUtils.MOVIE_DB_POSTER_PATH);
+                    .getMovieValues(resMoviesJSON, MovieDBJsonUtils.MOVIEDB_POSTER_PATH);
             String[] movieIDs = MovieDBJsonUtils
-                    .getMovieValues(resMoviesJSON, MovieDBJsonUtils.MOVIE_DB_ID);
+                    .getMovieValues(resMoviesJSON, MovieDBJsonUtils.MOVIEDB_ID);
             String[] fullImageUrls = new String[moviePosterJPGs.length];
             for (int i = 0; i < fullImageUrls.length; i++) {
                 fullImageUrls[i] = imageUrlConfig + moviePosterJPGs[i];

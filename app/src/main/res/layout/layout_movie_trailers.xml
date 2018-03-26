@@ -19,16 +19,18 @@
         app:layout_constraintTop_toTopOf="parent"
         tools:text="Trailers" />
 
-    <fragment
-        android:id="@+id/youtubeFragment"
-        android:name="com.google.android.youtube.player.YouTubePlayerSupportFragment"
-        android:layout_width="0dp"
+    <LinearLayout
+        android:id="@+id/yt_fragment_holder"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginEnd="@dimen/details_overview_vertical"
         android:layout_marginStart="@dimen/details_overview_vertical"
         android:layout_marginTop="@dimen/details_main_horizontal"
+        android:orientation="vertical"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/tv_title" />
+        app:layout_constraintTop_toBottomOf="@+id/tv_title">
+
+    </LinearLayout>
 
 </android.support.constraint.ConstraintLayout>

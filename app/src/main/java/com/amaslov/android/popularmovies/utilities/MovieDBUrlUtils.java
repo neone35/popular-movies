@@ -12,6 +12,7 @@ public class MovieDBUrlUtils {
     public static final String MOVIE_DB_PATH_UPCOMING = "upcoming";
     private static final String MOVIE_DB_PATH_TRAILERS = "videos";
     private static final String SCHEME_HTTPS = "https";
+    private static final String SCHEME_HTTP = "http";
     private static final String MOVIE_DB_AUTHORITY = "api.themoviedb.org";
     private static final String MOVIE_DB_API_VERSION = "3";
     private static final String MOVIE_DB_PATH_MOVIE = "movie";
@@ -32,33 +33,6 @@ public class MovieDBUrlUtils {
         return builder.build().toString();
     }
 
-    public static String getMoviesUrl(String sortBy) {
-        Uri initialUri = buildInitialMovieUrl();
-        return initialUri.buildUpon()
-                .appendPath(sortBy)
-                .appendQueryParameter(PARAM_API_KEY, MOVIE_DB_API_KEY)
-                .build()
-                .toString();
-    }
-
-    public static String getDetailsUrl(String movieId) {
-        Uri initialUri = buildInitialMovieUrl();
-        return initialUri.buildUpon()
-                .appendPath(movieId)
-                .appendQueryParameter(PARAM_API_KEY, MOVIE_DB_API_KEY)
-                .build()
-                .toString();
-    }
-
-    public static Uri getTrailersUrl(String movieId) {
-        Uri initialUri = buildInitialMovieUrl();
-        return initialUri.buildUpon()
-                .appendPath(movieId)
-                .appendPath(MOVIE_DB_PATH_TRAILERS)
-                .appendQueryParameter(PARAM_API_KEY, MOVIE_DB_API_KEY)
-                .build();
-    }
-
     private static Uri buildInitialMovieUrl() {
         Uri.Builder builder = new Uri.Builder();
         builder.scheme(SCHEME_HTTPS)
@@ -67,4 +41,51 @@ public class MovieDBUrlUtils {
                 .appendPath(MOVIE_DB_PATH_MOVIE);
         return builder.build();
     }
+
+    public static String getMoviesUrl(String sortBy) {
+        Uri initialUri = buildInitialMovieUrl();
+        return initialUri.buildUpon()
+                .appendPath(sortBy)
+                .appendQueryParameter(PARAM_API_KEY, MOVIE_DB_API_KEY)
+                .build().toString();
+    }
+
+    public static String getDetailsUrl(String movieId) {
+        Uri initialUri = buildInitialMovieUrl();
+        return initialUri.buildUpon()
+                .appendPath(movieId)
+                .appendQueryParameter(PARAM_API_KEY, MOVIE_DB_API_KEY)
+                .build().toString();
+    }
+
+    public static String getTrailersUrl(String movieId) {
+        Uri initialUri = buildInitialMovieUrl();
+        return initialUri.buildUpon()
+                .appendPath(movieId)
+                .appendPath(MOVIE_DB_PATH_TRAILERS)
+                .appendQueryParameter(PARAM_API_KEY, MOVIE_DB_API_KEY)
+                .build().toString();
+    }
+
+    public static String[] getYoutubeThumbnailUrls(String[] youtubeKeys) {
+
+        final String YOUTUBE_AUTHORITY = "img.youtube.com";
+        final String YOUTUBE_VI = "vi";
+        final String YOUTUBE_HQ_ENDING = "/hqdefault.jpg";
+        final String YOUTUBE_MQ_ENDING = "/mqdefault.jpg";
+
+        String[] youtubeThumbnailUrls = new String[youtubeKeys.length];
+
+        for (int i = 0; i < youtubeKeys.length; i++) {
+            Uri.Builder builder = new Uri.Builder();
+            builder.scheme(SCHEME_HTTP)
+                    .authority(YOUTUBE_AUTHORITY)
+                    .appendPath(YOUTUBE_VI)
+                    .appendPath(youtubeKeys[i]);
+            String oneThumbnailUrl = builder.build().toString() + YOUTUBE_MQ_ENDING;
+            youtubeThumbnailUrls[i] = oneThumbnailUrl;
+        }
+        return youtubeThumbnailUrls;
+    }
+
 }

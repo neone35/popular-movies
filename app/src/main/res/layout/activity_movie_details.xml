@@ -7,7 +7,9 @@
     <ScrollView
         android:id="@+id/sv_main"
         android:layout_width="match_parent"
-        android:layout_height="match_parent">
+        android:layout_height="match_parent"
+        android:focusable="true"
+        android:focusableInTouchMode="true">
 
         <android.support.constraint.ConstraintLayout
             android:id="@+id/constraintLayout"

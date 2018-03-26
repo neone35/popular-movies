@@ -17,9 +17,12 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+        <!-- configChanges: activity orientation can't be inherited -->
         <activity
             android:name=".MovieDetailsActivity"
-            android:parentActivityName=".MovieDetailsActivity">
+            android:configChanges="orientation|keyboardHidden"
+            android:parentActivityName=".MovieDetailsActivity"
+            android:screenOrientation="portrait">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value=".MainActivity" />

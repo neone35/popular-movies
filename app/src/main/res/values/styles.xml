@@ -19,10 +19,10 @@
         <item name="android:fontFamily">sans-serif-condensed</item>
     </style>
 
-    <style name="movieDetails" parent="TextAppearance.AppCompat.Caption">
+    <style name="movieDetails" parent="movieDetailsLabel">
         <item name="android:textSize">20sp</item>
         <item name="android:textColor">@color/colorAccent</item>
-        <item name="android:fontFamily">sans-serif-smallcaps</item>
+        <item name="android:textStyle">bold</item>
     </style>
 
     <style name="detailsButtonsSelector">

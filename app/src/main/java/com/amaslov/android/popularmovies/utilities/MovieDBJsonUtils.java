@@ -13,8 +13,9 @@ import static android.content.ContentValues.TAG;
 
 public class MovieDBJsonUtils {
 
-    public static final String MOVIE_DB_POSTER_PATH = "poster_path";
-    public static final String MOVIE_DB_ID = "id";
+    public static final String MOVIEDB_POSTER_PATH = "poster_path";
+    public static final String MOVIEDB_ID = "id";
+    private static final String MOVIEDB_RESULTS = "results";
 
     public static String getImageUrl(String configJson)
             throws JSONException {
@@ -40,8 +41,6 @@ public class MovieDBJsonUtils {
 
     public static String[] getMovieValues(String movieJsonStr, String movieKey)
             throws JSONException {
-
-        final String MOVIEDB_RESULTS = "results";
 
         JSONObject moviesJSONObject = new JSONObject(movieJsonStr);
         JSONArray movieArray = moviesJSONObject.getJSONArray(MOVIEDB_RESULTS);
@@ -74,6 +73,24 @@ public class MovieDBJsonUtils {
         return new MovieDetails(
                 movieFullUrl, movieTitle, movieReleaseDate,
                 movieVoteAverage, movieVoteCount, movieOverview);
+    }
+
+    public static String[] getMovieTrailerKeys(String movieTrailersJsonStr)
+            throws JSONException {
+
+        final String MOVIEDB_YT_TRAILER_KEY = "key";
+
+        JSONObject moviesJSONObject = new JSONObject(movieTrailersJsonStr);
+        JSONArray trailersArray = moviesJSONObject.getJSONArray(MOVIEDB_RESULTS);
+        String[] movieTrailerKeys = new String[trailersArray.length()];
+
+        for (int i = 0; i < trailersArray.length(); i++) {
+            JSONObject oneTrailerResult = trailersArray.getJSONObject(i);
+            String oneTrailerKeyValue = oneTrailerResult.getString(MOVIEDB_YT_TRAILER_KEY); // POSTER_PATH || ID
+            movieTrailerKeys[i] = oneTrailerKeyValue;
+        }
+        // /6uOMVZ6oG00xjq0KQiExRBw2s3P.jpg || 198663
+        return movieTrailerKeys;
     }
 
 }
