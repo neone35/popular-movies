@@ -5,7 +5,6 @@ import android.content.Intent;
 import android.databinding.DataBindingUtil;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
-import android.support.design.widget.CoordinatorLayout;
 import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -16,10 +15,9 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.Adapter;
 import android.widget.RadioGroup;
-import android.widget.Toast;
 
+import com.amaslov.android.popularmovies.adapters.MoviePosterAdapter;
 import com.amaslov.android.popularmovies.asynctasks.MovieInfoTask;
 import com.amaslov.android.popularmovies.asynctasks.OnEventListener;
 import com.amaslov.android.popularmovies.databinding.ActivityMainBinding;
@@ -41,6 +39,8 @@ public class MainActivity extends AppCompatActivity implements MoviePosterAdapte
         super.onCreate(savedInstanceState);
         mainBinding = DataBindingUtil.setContentView(this, R.layout.activity_main);
         actionBarSetup();
+        recyclerViewSetup();
+        displayMoviePosters(MovieDBUrlUtils.MOVIE_DB_PATH_POPULAR); //default
 
         noInternetSnack = Snackbar.make(mainBinding.mainConstrainLayout,
                 getString(R.string.no_internet_msg), Snackbar.LENGTH_LONG);
@@ -55,12 +55,10 @@ public class MainActivity extends AppCompatActivity implements MoviePosterAdapte
     @Override
     protected void onStart() {
         super.onStart();
-        recyclerViewSetup();
 
         if (isOnline()) {
             noInternetSnack.dismiss();
             radioGroupListenerSetup();
-            Log.d(getLocalClassName(), "onStart: " + noInternetSnack.isShown());
         } else {
             noInternetSnack.show();
             if (posterRecyclerView.getAdapter() != null)
@@ -84,7 +82,6 @@ public class MainActivity extends AppCompatActivity implements MoviePosterAdapte
     }
 
     private void radioGroupListenerSetup() {
-        displayMoviePosters(MovieDBUrlUtils.MOVIE_DB_PATH_POPULAR); //default
         mainBinding.popularTopRadioGroup.setOnCheckedChangeListener(new RadioGroup.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(RadioGroup radioGroup, int checkedId) {

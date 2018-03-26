@@ -3,18 +3,25 @@ package com.amaslov.android.popularmovies;
 import android.content.Intent;
 import android.databinding.DataBindingUtil;
 import android.support.constraint.ConstraintLayout;
+import android.support.design.widget.Snackbar;
+import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.support.v7.widget.GridLayoutManager;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.FrameLayout;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.amaslov.android.popularmovies.adapters.MovieTrailersAdapter;
 import com.amaslov.android.popularmovies.asynctasks.MovieDetailsTask;
 import com.amaslov.android.popularmovies.asynctasks.MovieTrailersTask;
 import com.amaslov.android.popularmovies.asynctasks.OnEventListener;
@@ -27,12 +34,13 @@ import com.squareup.picasso.Picasso;
 
 import java.util.Arrays;
 
-public class MovieDetailsActivity extends AppCompatActivity {
+public class MovieDetailsActivity extends AppCompatActivity implements MovieTrailersAdapter.ListItemClickListener {
 
     public static final String YOUTUBE_API_KEY = BuildConfig.YOUTUBE_API_KEY;
     private static final String TAG = MovieDetailsActivity.class.getName();
     public static String movieId = "";
     ActivityMovieDetailsBinding activityMovieDetailsBinding;
+    private RecyclerView trailerRecyclerView;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -56,32 +64,17 @@ public class MovieDetailsActivity extends AppCompatActivity {
                 setOneButtonActive((ImageButton) v);
                 setThisIncludeActive(activityMovieDetailsBinding.incMovieTrailers);
                 String movieTrailersUrl = MovieDBUrlUtils.getTrailersUrl(movieId);
-
+                trailerRecyclerViewSetup();
                 MovieTrailersTask movieTrailersTask =
                         new MovieTrailersTask(MovieDetailsActivity.this, new OnEventListener<String[]>() {
                             @Override
                             public void onSuccess(final String[] movieTrailerKeys) {
-                                final LinearLayout llYoutubePlayerHolder = findViewById(R.id.yt_fragment_holder);
-                                String[] youtubeThumbnailUrls = MovieDBUrlUtils.getYoutubeThumbnailUrls(movieTrailerKeys);
-                                for (int i = 0; i < movieTrailerKeys.length; i++) {
-                                    ImageView ivVideoThumb = new ImageView(MovieDetailsActivity.this);
-                                    llYoutubePlayerHolder.addView(ivVideoThumb);
-                                    ivVideoThumb.getLayoutParams().width = ViewGroup.LayoutParams.MATCH_PARENT;
-                                    ivVideoThumb.getLayoutParams().height = (int) getResources().getDimension(R.dimen.details_main_height);
-                                    Picasso.with(getApplicationContext())
-                                            .load(youtubeThumbnailUrls[i])
-                                            .into(ivVideoThumb);
-                                    final int final_i = i;
-                                    ivVideoThumb.setOnClickListener(new View.OnClickListener() {
-                                        @Override
-                                        public void onClick(View v) {
-                                            llYoutubePlayerHolder.removeView(v);
-                                            FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
-                                            ft.replace(R.id.yt_fragment_holder,
-                                                    YtPlayerFragment.newInstance(movieTrailerKeys[final_i]), String.valueOf(movieTrailerKeys[final_i]));
-                                            ft.commit();
-                                        }
-                                    });
+                                if (movieTrailerKeys.length != 0) {
+                                    MovieTrailersAdapter movieTrailersAdapter = new MovieTrailersAdapter(MovieDetailsActivity.this, movieTrailerKeys);
+                                    trailerRecyclerView.setAdapter(movieTrailersAdapter);
+                                    movieTrailersAdapter.notifyDataSetChanged();
+                                } else {
+                                    Toast.makeText(MovieDetailsActivity.this, getString(R.string.no_trailers_found), Toast.LENGTH_LONG).show();
                                 }
                             }
 
@@ -91,14 +84,31 @@ public class MovieDetailsActivity extends AppCompatActivity {
                             }
                         });
                 movieTrailersTask.execute(movieTrailersUrl, null, null);
-
-
-//                FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
-//                ft.add(R.id.yt_fragment_holder, YtPlayerFragment.newInstance("gNXQQbgK_cc"), "firstYTVideo");
-//                ft.add(R.id.yt_fragment_holder, YtPlayerFragment.newInstance("4Eo84jDIMKI"), "secondYTVideo");
-//                ft.commit();
             }
         });
+    }
+
+    @Override
+    public void onListItemClick(String clickedTrailerKey, View clickedView) {
+        RecyclerView rvTrailers = activityMovieDetailsBinding.incMovieTrailers.findViewById(R.id.rv_trailers);
+        rvTrailers.setVisibility(View.GONE);
+        FrameLayout flTrailerFragment = activityMovieDetailsBinding.incMovieTrailers.findViewById(R.id.fl_trailer_fragment_holder);
+        flTrailerFragment.setVisibility(View.VISIBLE);
+        FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
+        ft.add(R.id.fl_trailer_fragment_holder, YtPlayerFragment.newInstance(clickedTrailerKey), clickedTrailerKey);
+        Log.d(TAG, "onListItemClick: " + clickedTrailerKey);
+        ft.commit();
+    }
+
+    private void trailerRecyclerViewSetup() {
+        trailerRecyclerView = activityMovieDetailsBinding.incMovieTrailers.findViewById(R.id.rv_trailers);
+        LinearLayoutManager linearLayoutManager = new LinearLayoutManager(this);
+        trailerRecyclerView.setLayoutManager(linearLayoutManager);
+        trailerRecyclerView.setHasFixedSize(false);
+        // Show RecyclerView and Hide chosen trailer on click
+        trailerRecyclerView.setVisibility(View.VISIBLE);
+        FrameLayout flTrailerFragment = activityMovieDetailsBinding.incMovieTrailers.findViewById(R.id.fl_trailer_fragment_holder);
+        flTrailerFragment.setVisibility(View.INVISIBLE);
     }
 
     private void setOneButtonActive(ImageButton thisButton) {

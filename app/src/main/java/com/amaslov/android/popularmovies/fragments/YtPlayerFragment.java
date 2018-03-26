@@ -37,7 +37,7 @@ public class YtPlayerFragment extends YouTubePlayerSupportFragment implements Yo
         String youtubeVideoId = "";
         if (getArguments() != null) {
             youtubeVideoId = getArguments().getString(YT_VIDEO_ID);
-            youTubePlayer.cueVideo(youtubeVideoId);
+            youTubePlayer.loadVideo(youtubeVideoId);
             Log.d("onInitializationSuccess", "onInitializationSuccess: " + youtubeVideoId);
         } else {
             Toast.makeText(getContext(), "Youtube" + youtubeVideoId + " Failed!", Toast.LENGTH_SHORT).show();

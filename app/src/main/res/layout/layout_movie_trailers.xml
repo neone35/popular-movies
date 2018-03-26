@@ -19,18 +19,27 @@
         app:layout_constraintTop_toTopOf="parent"
         tools:text="Trailers" />
 
-    <LinearLayout
-        android:id="@+id/yt_fragment_holder"
+    <android.support.v7.widget.RecyclerView
+        android:id="@+id/rv_trailers"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginEnd="@dimen/details_overview_vertical"
         android:layout_marginStart="@dimen/details_overview_vertical"
-        android:layout_marginTop="@dimen/details_main_horizontal"
-        android:orientation="vertical"
+        android:layout_marginTop="@dimen/margin_8dp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/tv_title">
+        app:layout_constraintTop_toBottomOf="@+id/tv_title" />
 
-    </LinearLayout>
+    <FrameLayout
+        android:id="@+id/fl_trailer_fragment_holder"
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/details_main_height"
+        android:layout_marginEnd="@dimen/details_overview_vertical"
+        android:layout_marginStart="@dimen/details_overview_vertical"
+        android:layout_marginTop="@dimen/margin_8dp"
+        android:visibility="invisible"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/tv_title" />
 
 </android.support.constraint.ConstraintLayout>
