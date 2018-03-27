@@ -5,7 +5,7 @@ import android.util.Log;
 
 import com.amaslov.android.popularmovies.BuildConfig;
 
-public class MovieDBUrlUtils {
+public class UrlUtils {
 
     public static final String MOVIE_DB_PATH_POPULAR = "popular";
     public static final String MOVIE_DB_PATH_TOP_RATED = "top_rated";
@@ -20,7 +20,7 @@ public class MovieDBUrlUtils {
     private static final String PARAM_API_KEY = "api_key";
     private static final String MOVIE_DB_PATH_CONFIGURATION = "configuration";
 
-    public MovieDBUrlUtils() {
+    public UrlUtils() {
     }
 
     public static String getConfigUrl() {

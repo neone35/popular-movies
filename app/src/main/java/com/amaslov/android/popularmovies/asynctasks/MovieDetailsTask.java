@@ -11,8 +11,8 @@ import android.os.AsyncTask;
 
 import com.amaslov.android.popularmovies.R;
 import com.amaslov.android.popularmovies.parcelables.MovieDetails;
-import com.amaslov.android.popularmovies.utilities.MovieDBJsonUtils;
-import com.amaslov.android.popularmovies.utilities.MovieDBUrlUtils;
+import com.amaslov.android.popularmovies.utilities.JsonUtils;
+import com.amaslov.android.popularmovies.utilities.UrlUtils;
 
 @SuppressLint("StaticFieldLeak")
 public class MovieDetailsTask extends AsyncTask<String[], Void, MovieDetails> {
@@ -38,7 +38,7 @@ public class MovieDetailsTask extends AsyncTask<String[], Void, MovieDetails> {
     @Override
     protected MovieDetails doInBackground(String[]... strings) {
         String[] idAndUrl = strings[0];
-        String movieDetailsUrl = MovieDBUrlUtils.getDetailsUrl(idAndUrl[0]);
+        String movieDetailsUrl = UrlUtils.getDetailsUrl(idAndUrl[0]);
         String moviePosterFullUrl = idAndUrl[1];
         OkHttpClient client = new OkHttpClient();
         Request reqMovieDetails = new Request.Builder()
@@ -48,7 +48,7 @@ public class MovieDetailsTask extends AsyncTask<String[], Void, MovieDetails> {
         try {
             Response resMovieDetails = client.newCall(reqMovieDetails).execute();
             String resDetailsJSON = resMovieDetails.body().string();
-            return MovieDBJsonUtils
+            return JsonUtils
                     .getMovieDetails(resDetailsJSON, moviePosterFullUrl);
         } catch (Exception e) {
             mException = e;

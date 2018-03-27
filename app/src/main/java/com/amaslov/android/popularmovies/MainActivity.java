@@ -22,7 +22,7 @@ import com.amaslov.android.popularmovies.asynctasks.MovieInfoTask;
 import com.amaslov.android.popularmovies.asynctasks.OnEventListener;
 import com.amaslov.android.popularmovies.databinding.ActivityMainBinding;
 import com.amaslov.android.popularmovies.parcelables.MovieInfo;
-import com.amaslov.android.popularmovies.utilities.MovieDBUrlUtils;
+import com.amaslov.android.popularmovies.utilities.UrlUtils;
 
 
 public class MainActivity extends AppCompatActivity implements MoviePosterAdapter.ListItemClickListener {
@@ -40,7 +40,7 @@ public class MainActivity extends AppCompatActivity implements MoviePosterAdapte
         mainBinding = DataBindingUtil.setContentView(this, R.layout.activity_main);
         actionBarSetup();
         recyclerViewSetup();
-        displayMoviePosters(MovieDBUrlUtils.MOVIE_DB_PATH_POPULAR); //default
+        displayMoviePosters(UrlUtils.MOVIE_DB_PATH_POPULAR); //default
 
         noInternetSnack = Snackbar.make(mainBinding.mainConstrainLayout,
                 getString(R.string.no_internet_msg), Snackbar.LENGTH_LONG);
@@ -87,13 +87,13 @@ public class MainActivity extends AppCompatActivity implements MoviePosterAdapte
             public void onCheckedChanged(RadioGroup radioGroup, int checkedId) {
                 switch (checkedId) {
                     case R.id.rb_popular:
-                        displayMoviePosters(MovieDBUrlUtils.MOVIE_DB_PATH_POPULAR);
+                        displayMoviePosters(UrlUtils.MOVIE_DB_PATH_POPULAR);
                         break;
                     case R.id.rb_top_rated:
-                        displayMoviePosters(MovieDBUrlUtils.MOVIE_DB_PATH_TOP_RATED);
+                        displayMoviePosters(UrlUtils.MOVIE_DB_PATH_TOP_RATED);
                         break;
                     case R.id.rb_upcoming:
-                        displayMoviePosters(MovieDBUrlUtils.MOVIE_DB_PATH_UPCOMING);
+                        displayMoviePosters(UrlUtils.MOVIE_DB_PATH_UPCOMING);
                         break;
                 }
             }
@@ -119,8 +119,8 @@ public class MainActivity extends AppCompatActivity implements MoviePosterAdapte
     }
 
     private void displayMoviePosters(String sortBy) {
-        String configUrl = MovieDBUrlUtils.getConfigUrl();
-        String moviesUrl = MovieDBUrlUtils.getMoviesUrl(sortBy);
+        String configUrl = UrlUtils.getConfigUrl();
+        String moviesUrl = UrlUtils.getMoviesUrl(sortBy);
         String[] configAndUrls = {configUrl, moviesUrl};
 
         MovieInfoTask movieInfoTask = new MovieInfoTask(this, new OnEventListener<MovieInfo>() {

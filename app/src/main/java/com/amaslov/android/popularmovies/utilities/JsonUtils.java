@@ -4,6 +4,7 @@ import android.content.Context;
 import android.util.Log;
 
 import com.amaslov.android.popularmovies.parcelables.MovieDetails;
+import com.amaslov.android.popularmovies.parcelables.MovieTrailerInfo;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -11,7 +12,7 @@ import org.json.JSONObject;
 
 import static android.content.ContentValues.TAG;
 
-public class MovieDBJsonUtils {
+public class JsonUtils {
 
     public static final String MOVIEDB_POSTER_PATH = "poster_path";
     public static final String MOVIEDB_ID = "id";
@@ -75,22 +76,26 @@ public class MovieDBJsonUtils {
                 movieVoteAverage, movieVoteCount, movieOverview);
     }
 
-    public static String[] getMovieTrailerKeys(String movieTrailersJsonStr)
+    public static MovieTrailerInfo getMovieTrailerKeys(String movieTrailersJsonStr)
             throws JSONException {
 
         final String MOVIEDB_YT_TRAILER_KEY = "key";
+        final String MOVIEDB_YT_TRAILER_NAME = "name";
 
         JSONObject moviesJSONObject = new JSONObject(movieTrailersJsonStr);
         JSONArray trailersArray = moviesJSONObject.getJSONArray(MOVIEDB_RESULTS);
         String[] movieTrailerKeys = new String[trailersArray.length()];
+        String[] movieTrailerNames = new String[trailersArray.length()];
 
         for (int i = 0; i < trailersArray.length(); i++) {
             JSONObject oneTrailerResult = trailersArray.getJSONObject(i);
-            String oneTrailerKeyValue = oneTrailerResult.getString(MOVIEDB_YT_TRAILER_KEY); // POSTER_PATH || ID
+            String oneTrailerKeyValue = oneTrailerResult.getString(MOVIEDB_YT_TRAILER_KEY); // gNXQQbgK_cc
+            String oneTrailerNameValue = oneTrailerResult.getString(MOVIEDB_YT_TRAILER_NAME); // Ti West on INDIANA JONES AND THE LAST CRUSADE
             movieTrailerKeys[i] = oneTrailerKeyValue;
+            movieTrailerNames[i] = oneTrailerNameValue;
         }
         // /6uOMVZ6oG00xjq0KQiExRBw2s3P.jpg || 198663
-        return movieTrailerKeys;
+        return new MovieTrailerInfo(movieTrailerKeys, movieTrailerNames);
     }
 
 }

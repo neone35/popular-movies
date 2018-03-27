@@ -7,7 +7,7 @@ import android.os.AsyncTask;
 
 import com.amaslov.android.popularmovies.R;
 import com.amaslov.android.popularmovies.parcelables.MovieInfo;
-import com.amaslov.android.popularmovies.utilities.MovieDBJsonUtils;
+import com.amaslov.android.popularmovies.utilities.JsonUtils;
 
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
@@ -52,12 +52,12 @@ public class MovieInfoTask extends AsyncTask<String[], Void, MovieInfo> {
 
             String resConfigJSON = resImageUrlConfig.body().string();
             String resMoviesJSON = resMoviePostersJPG.body().string();
-            String imageUrlConfig = MovieDBJsonUtils
+            String imageUrlConfig = JsonUtils
                     .getImageUrl(resConfigJSON);
-            String[] moviePosterJPGs = MovieDBJsonUtils
-                    .getMovieValues(resMoviesJSON, MovieDBJsonUtils.MOVIEDB_POSTER_PATH);
-            String[] movieIDs = MovieDBJsonUtils
-                    .getMovieValues(resMoviesJSON, MovieDBJsonUtils.MOVIEDB_ID);
+            String[] moviePosterJPGs = JsonUtils
+                    .getMovieValues(resMoviesJSON, JsonUtils.MOVIEDB_POSTER_PATH);
+            String[] movieIDs = JsonUtils
+                    .getMovieValues(resMoviesJSON, JsonUtils.MOVIEDB_ID);
             String[] fullImageUrls = new String[moviePosterJPGs.length];
             for (int i = 0; i < fullImageUrls.length; i++) {
                 fullImageUrls[i] = imageUrlConfig + moviePosterJPGs[i];

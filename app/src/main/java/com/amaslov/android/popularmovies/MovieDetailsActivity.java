@@ -3,21 +3,15 @@ package com.amaslov.android.popularmovies;
 import android.content.Intent;
 import android.databinding.DataBindingUtil;
 import android.support.constraint.ConstraintLayout;
-import android.support.design.widget.Snackbar;
-import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
-import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.View;
-import android.view.ViewGroup;
 import android.widget.FrameLayout;
 import android.widget.ImageButton;
-import android.widget.ImageView;
-import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -28,11 +22,9 @@ import com.amaslov.android.popularmovies.asynctasks.OnEventListener;
 import com.amaslov.android.popularmovies.databinding.ActivityMovieDetailsBinding;
 import com.amaslov.android.popularmovies.fragments.YtPlayerFragment;
 import com.amaslov.android.popularmovies.parcelables.MovieDetails;
-import com.amaslov.android.popularmovies.utilities.MovieDBUrlUtils;
-import com.google.android.youtube.player.YouTubePlayerSupportFragment;
+import com.amaslov.android.popularmovies.parcelables.MovieTrailerInfo;
+import com.amaslov.android.popularmovies.utilities.UrlUtils;
 import com.squareup.picasso.Picasso;
-
-import java.util.Arrays;
 
 public class MovieDetailsActivity extends AppCompatActivity implements MovieTrailersAdapter.ListItemClickListener {
 
@@ -63,14 +55,14 @@ public class MovieDetailsActivity extends AppCompatActivity implements MovieTrai
             public void onClick(View v) {
                 setOneButtonActive((ImageButton) v);
                 setThisIncludeActive(activityMovieDetailsBinding.incMovieTrailers);
-                String movieTrailersUrl = MovieDBUrlUtils.getTrailersUrl(movieId);
+                String movieTrailersUrl = UrlUtils.getTrailersUrl(movieId);
                 trailerRecyclerViewSetup();
                 MovieTrailersTask movieTrailersTask =
-                        new MovieTrailersTask(MovieDetailsActivity.this, new OnEventListener<String[]>() {
+                        new MovieTrailersTask(MovieDetailsActivity.this, new OnEventListener<MovieTrailerInfo>() {
                             @Override
-                            public void onSuccess(final String[] movieTrailerKeys) {
-                                if (movieTrailerKeys.length != 0) {
-                                    MovieTrailersAdapter movieTrailersAdapter = new MovieTrailersAdapter(MovieDetailsActivity.this, movieTrailerKeys);
+                            public void onSuccess(final MovieTrailerInfo movieTrailerInfo) {
+                                if (movieTrailerInfo.getTrailerInfoLength() != 0) {
+                                    MovieTrailersAdapter movieTrailersAdapter = new MovieTrailersAdapter(MovieDetailsActivity.this, movieTrailerInfo);
                                     trailerRecyclerView.setAdapter(movieTrailersAdapter);
                                     movieTrailersAdapter.notifyDataSetChanged();
                                 } else {
@@ -89,13 +81,15 @@ public class MovieDetailsActivity extends AppCompatActivity implements MovieTrai
     }
 
     @Override
-    public void onListItemClick(String clickedTrailerKey, View clickedView) {
+    public void onListItemClick(String clickedTrailerKey) {
+        // hide recylerView on item click
         RecyclerView rvTrailers = activityMovieDetailsBinding.incMovieTrailers.findViewById(R.id.rv_trailers);
         rvTrailers.setVisibility(View.GONE);
+        // replace clicked thumbnail into youtube player fragment
         FrameLayout flTrailerFragment = activityMovieDetailsBinding.incMovieTrailers.findViewById(R.id.fl_trailer_fragment_holder);
         flTrailerFragment.setVisibility(View.VISIBLE);
         FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
-        ft.add(R.id.fl_trailer_fragment_holder, YtPlayerFragment.newInstance(clickedTrailerKey), clickedTrailerKey);
+        ft.replace(R.id.fl_trailer_fragment_holder, YtPlayerFragment.newInstance(clickedTrailerKey), clickedTrailerKey);
         Log.d(TAG, "onListItemClick: " + clickedTrailerKey);
         ft.commit();
     }

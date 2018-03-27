@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/fl_trailers_layout"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
@@ -16,6 +17,22 @@
         android:layout_width="100dp"
         android:layout_height="80dp"
         android:layout_gravity="center"
-        android:background="@drawable/ic_youtube_play" />
+        android:background="@drawable/ic_youtube_play"
+        android:contentDescription="@string/trailer_thumbnail_play_icon" />
+
+    <TextView
+        android:id="@+id/tv_trailer_name"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="@dimen/margin_8dp"
+        android:layout_marginRight="@dimen/margin_8dp"
+        android:layout_marginStart="@dimen/margin_8dp"
+        android:layout_marginTop="@dimen/margin_8dp"
+        android:shadowColor="@color/colorBlack"
+        android:shadowDx="2.0"
+        android:shadowDy="2.0"
+        android:shadowRadius="3.0"
+        android:textColor="@color/colorWhite"
+        tools:text="Trailer name is very holiwoodish" />
 
 </FrameLayout>
