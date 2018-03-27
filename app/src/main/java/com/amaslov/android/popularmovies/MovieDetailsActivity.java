@@ -3,12 +3,14 @@ package com.amaslov.android.popularmovies;
 import android.content.Intent;
 import android.databinding.DataBindingUtil;
 import android.support.constraint.ConstraintLayout;
+import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
+import android.view.KeyEvent;
 import android.view.View;
 import android.widget.FrameLayout;
 import android.widget.ImageButton;
@@ -24,15 +26,18 @@ import com.amaslov.android.popularmovies.fragments.YtPlayerFragment;
 import com.amaslov.android.popularmovies.parcelables.MovieDetails;
 import com.amaslov.android.popularmovies.parcelables.MovieTrailerInfo;
 import com.amaslov.android.popularmovies.utilities.UrlUtils;
+import com.google.android.youtube.player.YouTubePlayerSupportFragment;
 import com.squareup.picasso.Picasso;
 
 public class MovieDetailsActivity extends AppCompatActivity implements MovieTrailersAdapter.ListItemClickListener {
 
-    public static final String YOUTUBE_API_KEY = BuildConfig.YOUTUBE_API_KEY;
     private static final String TAG = MovieDetailsActivity.class.getName();
-    public static String movieId = "";
-    ActivityMovieDetailsBinding activityMovieDetailsBinding;
+    final private static String YOUTUBE_FRAGMENT_TAG = "youtube_player_fragment";
+    private static String movieId = "";
     private RecyclerView trailerRecyclerView;
+    private static String lastTrailerKeyTemp = "";
+    private static String movieTrailersUrl = "";
+    private ActivityMovieDetailsBinding activityMovieDetailsBinding;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -55,29 +60,23 @@ public class MovieDetailsActivity extends AppCompatActivity implements MovieTrai
             public void onClick(View v) {
                 setOneButtonActive((ImageButton) v);
                 setThisIncludeActive(activityMovieDetailsBinding.incMovieTrailers);
-                String movieTrailersUrl = UrlUtils.getTrailersUrl(movieId);
+                movieTrailersUrl = UrlUtils.getTrailersUrl(movieId);
+                // load new trailers thumbnail list
                 trailerRecyclerViewSetup();
-                MovieTrailersTask movieTrailersTask =
-                        new MovieTrailersTask(MovieDetailsActivity.this, new OnEventListener<MovieTrailerInfo>() {
-                            @Override
-                            public void onSuccess(final MovieTrailerInfo movieTrailerInfo) {
-                                if (movieTrailerInfo.getTrailerInfoLength() != 0) {
-                                    MovieTrailersAdapter movieTrailersAdapter = new MovieTrailersAdapter(MovieDetailsActivity.this, movieTrailerInfo);
-                                    trailerRecyclerView.setAdapter(movieTrailersAdapter);
-                                    movieTrailersAdapter.notifyDataSetChanged();
-                                } else {
-                                    Toast.makeText(MovieDetailsActivity.this, getString(R.string.no_trailers_found), Toast.LENGTH_LONG).show();
-                                }
-                            }
-
-                            @Override
-                            public void onFailure(Exception e) {
-                                Toast.makeText(MovieDetailsActivity.this, "ERROR: " + e.getMessage(), Toast.LENGTH_SHORT).show();
-                            }
-                        });
-                movieTrailersTask.execute(movieTrailersUrl, null, null);
+                loadTrailersTask(movieTrailersUrl);
             }
         });
+    }
+
+    @Override
+    public void onBackPressed() {
+        // If YT player exists, immitate trailers button press on back press (load thumbnails again)
+        Fragment ytFrag = getSupportFragmentManager().findFragmentByTag(YOUTUBE_FRAGMENT_TAG);
+        if (ytFrag != null) {
+            activityMovieDetailsBinding.ibTrailers.performClick();
+        } else {
+            super.onBackPressed();
+        }
     }
 
     @Override
@@ -85,13 +84,41 @@ public class MovieDetailsActivity extends AppCompatActivity implements MovieTrai
         // hide recylerView on item click
         RecyclerView rvTrailers = activityMovieDetailsBinding.incMovieTrailers.findViewById(R.id.rv_trailers);
         rvTrailers.setVisibility(View.GONE);
-        // replace clicked thumbnail into youtube player fragment
+        // replace clicked thumbnail with youtube player fragment
         FrameLayout flTrailerFragment = activityMovieDetailsBinding.incMovieTrailers.findViewById(R.id.fl_trailer_fragment_holder);
         flTrailerFragment.setVisibility(View.VISIBLE);
         FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
-        ft.replace(R.id.fl_trailer_fragment_holder, YtPlayerFragment.newInstance(clickedTrailerKey), clickedTrailerKey);
-        Log.d(TAG, "onListItemClick: " + clickedTrailerKey);
+        Fragment newYtFragment = YtPlayerFragment.newInstance(clickedTrailerKey);
+        ft.replace(R.id.fl_trailer_fragment_holder, newYtFragment, YOUTUBE_FRAGMENT_TAG);
         ft.commit();
+
+    }
+
+    private void loadTrailersTask(String movieTrailersUrl) {
+        MovieTrailersTask movieTrailersTask =
+                new MovieTrailersTask(MovieDetailsActivity.this, new OnEventListener<MovieTrailerInfo>() {
+                    @Override
+                    public void onSuccess(final MovieTrailerInfo movieTrailerInfo) {
+                        if (movieTrailerInfo.getTrailerInfoLength() != 0) {
+                            // Set new trailer thumbnail list
+                            MovieTrailersAdapter movieTrailersAdapter = new MovieTrailersAdapter(MovieDetailsActivity.this, movieTrailerInfo);
+                            trailerRecyclerView.setAdapter(movieTrailersAdapter);
+                            movieTrailersAdapter.notifyDataSetChanged();
+                            // remove last loaded trailer player fragment
+                            Fragment ytFragment = getSupportFragmentManager().findFragmentByTag("youtube_player_fragment");
+                            if (ytFragment != null)
+                                getSupportFragmentManager().beginTransaction().remove(ytFragment).commit();
+                        } else {
+                            Toast.makeText(MovieDetailsActivity.this, getString(R.string.no_trailers_found), Toast.LENGTH_LONG).show();
+                        }
+                    }
+
+                    @Override
+                    public void onFailure(Exception e) {
+                        Toast.makeText(MovieDetailsActivity.this, "ERROR: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+                    }
+                });
+        movieTrailersTask.execute(movieTrailersUrl, null, null);
     }
 
     private void trailerRecyclerViewSetup() {
@@ -99,10 +126,10 @@ public class MovieDetailsActivity extends AppCompatActivity implements MovieTrai
         LinearLayoutManager linearLayoutManager = new LinearLayoutManager(this);
         trailerRecyclerView.setLayoutManager(linearLayoutManager);
         trailerRecyclerView.setHasFixedSize(false);
-        // Show RecyclerView and Hide chosen trailer on click
+        // hide chosen trailer on click
         trailerRecyclerView.setVisibility(View.VISIBLE);
         FrameLayout flTrailerFragment = activityMovieDetailsBinding.incMovieTrailers.findViewById(R.id.fl_trailer_fragment_holder);
-        flTrailerFragment.setVisibility(View.INVISIBLE);
+        flTrailerFragment.setVisibility(View.GONE);
     }
 
     private void setOneButtonActive(ImageButton thisButton) {
