@@ -15,7 +15,7 @@ import com.amaslov.android.popularmovies.utilities.JsonUtils;
 import com.amaslov.android.popularmovies.utilities.UrlUtils;
 
 @SuppressLint("StaticFieldLeak")
-public class MovieDetailsTask extends AsyncTask<String[], Void, MovieDetails> {
+public class MovieDetailsTask extends AsyncTask<String, Void, MovieDetails> {
     private ProgressDialog dialog;
     private OnEventListener<MovieDetails> mCallBack;
     private Context mContext;
@@ -36,10 +36,10 @@ public class MovieDetailsTask extends AsyncTask<String[], Void, MovieDetails> {
     }
 
     @Override
-    protected MovieDetails doInBackground(String[]... strings) {
-        String[] idAndUrl = strings[0];
-        String movieDetailsUrl = UrlUtils.getDetailsUrl(idAndUrl[0]);
-        String moviePosterFullUrl = idAndUrl[1];
+    protected MovieDetails doInBackground(String... strings) {
+        String movieId = strings[0];
+        String movieFullUrl = strings[1];
+        String movieDetailsUrl = UrlUtils.getDetailsUrl(movieId);
         OkHttpClient client = new OkHttpClient();
         Request reqMovieDetails = new Request.Builder()
                 .url(movieDetailsUrl)
@@ -49,7 +49,7 @@ public class MovieDetailsTask extends AsyncTask<String[], Void, MovieDetails> {
             Response resMovieDetails = client.newCall(reqMovieDetails).execute();
             String resDetailsJSON = resMovieDetails.body().string();
             return JsonUtils
-                    .getMovieDetails(resDetailsJSON, moviePosterFullUrl);
+                    .getMovieDetails(resDetailsJSON, movieFullUrl);
         } catch (Exception e) {
             mException = e;
             return null;

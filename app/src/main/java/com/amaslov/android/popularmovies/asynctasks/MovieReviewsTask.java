@@ -6,6 +6,7 @@ import android.content.Context;
 import android.os.AsyncTask;
 
 import com.amaslov.android.popularmovies.R;
+import com.amaslov.android.popularmovies.parcelables.MovieReviewInfo;
 import com.amaslov.android.popularmovies.parcelables.MovieTrailerInfo;
 import com.amaslov.android.popularmovies.utilities.JsonUtils;
 import com.amaslov.android.popularmovies.utilities.UrlUtils;
@@ -15,13 +16,13 @@ import okhttp3.Request;
 import okhttp3.Response;
 
 @SuppressLint("StaticFieldLeak")
-public class MovieTrailersTask extends AsyncTask<String, Void, MovieTrailerInfo> {
+public class MovieReviewsTask extends AsyncTask<String, Void, MovieReviewInfo> {
     private ProgressDialog dialog;
-    private OnEventListener<MovieTrailerInfo> mCallBack;
+    private OnEventListener<MovieReviewInfo> mCallBack;
     private Context mContext;
     private Exception mException;
 
-    public MovieTrailersTask(Context context, OnEventListener<MovieTrailerInfo> callback) {
+    public MovieReviewsTask(Context context, OnEventListener<MovieReviewInfo> callback) {
         mContext = context;
         mCallBack = callback;
     }
@@ -29,36 +30,36 @@ public class MovieTrailersTask extends AsyncTask<String, Void, MovieTrailerInfo>
     @Override
     protected void onPreExecute() {
         dialog = new ProgressDialog(mContext);
-        dialog.setTitle(mContext.getString(R.string.getting_trailers));
+        dialog.setTitle(mContext.getString(R.string.getting_reviews));
         dialog.setMessage(mContext.getResources().getString(R.string.please_wait));
         dialog.setIndeterminate(true);
         dialog.show();
     }
 
     @Override
-    protected MovieTrailerInfo doInBackground(String... strings) {
+    protected MovieReviewInfo doInBackground(String... strings) {
         String movieId = strings[0];
-        String movieTrailersUrl = UrlUtils.getTrailersUrl(movieId);
+        String movieReviewsUrl = UrlUtils.getReviewsUrl(movieId);
         OkHttpClient client = new OkHttpClient();
-        Request reqMovieTrailers = new Request.Builder()
-                .url(movieTrailersUrl)
+        Request reqMovieReviews = new Request.Builder()
+                .url(movieReviewsUrl)
                 .get()
                 .build();
         try {
-            Response resMovieTrailers = client.newCall(reqMovieTrailers).execute();
-            String resTrailersJSON = resMovieTrailers.body().string();
-            return JsonUtils.getMovieTrailersInfo(resTrailersJSON);
+            Response resMovieReviews = client.newCall(reqMovieReviews).execute();
+            String resReviewsJSON = resMovieReviews.body().string();
+            return JsonUtils.getMovieReviewsInfo(resReviewsJSON);
         } catch (Exception e) {
             mException = e;
             return null;
         }
     }
 
-    protected void onPostExecute(MovieTrailerInfo movieTrailerInfo) {
+    protected void onPostExecute(MovieReviewInfo movieReviewInfo) {
         dialog.dismiss();
         if (mCallBack != null) {
             if (mException == null) {
-                mCallBack.onSuccess(movieTrailerInfo);
+                mCallBack.onSuccess(movieReviewInfo);
             } else {
                 mCallBack.onFailure(mException);
             }

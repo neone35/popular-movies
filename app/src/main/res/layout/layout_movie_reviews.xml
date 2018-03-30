@@ -3,8 +3,7 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:paddingBottom="@dimen/details_main_vertical">
+    android:layout_height="match_parent">
 
     <TextView
         android:id="@+id/tv_title"
@@ -14,26 +13,18 @@
         android:layout_marginLeft="@dimen/details_title_left"
         android:layout_marginStart="@dimen/details_title_left"
         android:layout_marginTop="8dp"
-        android:text="@string/trailers_title"
+        android:text="@string/reviews_title"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        tools:text="Trailers" />
+        tools:text="Reviews" />
 
     <android.support.v7.widget.RecyclerView
-        android:id="@+id/rv_trailers"
+        android:id="@+id/rv_reviews"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        style="@style/detailsInfoMargins"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/tv_title" />
-
-    <FrameLayout
-        android:id="@+id/fl_trailer_fragment_holder"
-        android:layout_width="match_parent"
-        android:layout_height="@dimen/details_main_height"
-        style="@style/detailsInfoMargins"
-        android:visibility="invisible"
+        android:layout_marginEnd="@dimen/details_overview_vertical"
+        android:layout_marginStart="@dimen/details_overview_vertical"
+        android:layout_marginTop="@dimen/margin_8dp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/tv_title" />

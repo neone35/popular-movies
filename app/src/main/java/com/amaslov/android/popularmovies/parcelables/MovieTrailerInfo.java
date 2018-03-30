@@ -37,7 +37,7 @@ public class MovieTrailerInfo implements Parcelable {
 
     public int getTrailerInfoLength() {
         int trailerInfoArrayLength = 0;
-        if (trailerKeys.length == trailerNames.length)
+        if (trailerKeys.length != 0)
             trailerInfoArrayLength = trailerKeys.length;
         return trailerInfoArrayLength;
     }

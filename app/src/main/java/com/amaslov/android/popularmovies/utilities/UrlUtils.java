@@ -11,6 +11,7 @@ public class UrlUtils {
     public static final String MOVIE_DB_PATH_TOP_RATED = "top_rated";
     public static final String MOVIE_DB_PATH_UPCOMING = "upcoming";
     private static final String MOVIE_DB_PATH_TRAILERS = "videos";
+    private static final String MOVIE_DB_PATH_REVIEWS = "reviews";
     private static final String SCHEME_HTTPS = "https";
     private static final String SCHEME_HTTP = "http";
     private static final String MOVIE_DB_AUTHORITY = "api.themoviedb.org";
@@ -63,6 +64,15 @@ public class UrlUtils {
         return initialUri.buildUpon()
                 .appendPath(movieId)
                 .appendPath(MOVIE_DB_PATH_TRAILERS)
+                .appendQueryParameter(PARAM_API_KEY, MOVIE_DB_API_KEY)
+                .build().toString();
+    }
+
+    public static String getReviewsUrl(String movieId) {
+        Uri initialUri = buildInitialMovieUrl();
+        return initialUri.buildUpon()
+                .appendPath(movieId)
+                .appendPath(MOVIE_DB_PATH_REVIEWS)
                 .appendQueryParameter(PARAM_API_KEY, MOVIE_DB_API_KEY)
                 .build().toString();
     }

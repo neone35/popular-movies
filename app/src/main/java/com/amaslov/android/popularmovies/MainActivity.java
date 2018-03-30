@@ -121,7 +121,6 @@ public class MainActivity extends AppCompatActivity implements MoviePosterAdapte
     private void displayMoviePosters(String sortBy) {
         String configUrl = UrlUtils.getConfigUrl();
         String moviesUrl = UrlUtils.getMoviesUrl(sortBy);
-        String[] configAndUrls = {configUrl, moviesUrl};
 
         MovieInfoTask movieInfoTask = new MovieInfoTask(this, new OnEventListener<MovieInfo>() {
             @Override
@@ -136,7 +135,7 @@ public class MainActivity extends AppCompatActivity implements MoviePosterAdapte
                 noInternetSnack.show();
             }
         });
-        movieInfoTask.execute(configAndUrls, null, null);
+        movieInfoTask.execute(configUrl, moviesUrl, null);
     }
 
     @Override

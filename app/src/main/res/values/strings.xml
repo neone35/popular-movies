@@ -21,8 +21,12 @@
     <string name="read_reviews">read reviews</string>
     <string name="movie_overview_long">Set in a post-apocalyptic world, young Thomas is deposited in a community of boys after his memory is erased, soon learning they\'re all trapped in a maze that will require him to join forces with fellow “runners” for a shot at escape.</string>
     <string name="trailers_title">Trailers</string>
-    <string name="getting_movie_trailers">Getting trailers</string>
+    <string name="getting_trailers">Getting trailers</string>
     <string name="trailer_of_the_movie">Trailer of the movie</string>
     <string name="no_trailers_found">No trailers found</string>
     <string name="trailer_thumbnail_play_icon">Trailer thumbnail play icon</string>
+    <string name="reviews_title">Reviews</string>
+    <string name="getting_reviews">Getting reviews</string>
+    <string name="author">Author</string>
+    <string name="by">by</string>
 </resources>

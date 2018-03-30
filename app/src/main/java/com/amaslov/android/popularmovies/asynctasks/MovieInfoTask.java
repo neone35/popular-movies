@@ -14,7 +14,7 @@ import okhttp3.Request;
 import okhttp3.Response;
 
 @SuppressLint("StaticFieldLeak")
-public class MovieInfoTask extends AsyncTask<String[], Void, MovieInfo> {
+public class MovieInfoTask extends AsyncTask<String, Void, MovieInfo> {
 
     private ProgressDialog dialog;
     private OnEventListener<MovieInfo> mCallBack;
@@ -35,15 +35,16 @@ public class MovieInfoTask extends AsyncTask<String[], Void, MovieInfo> {
         dialog.show();
     }
 
-    protected MovieInfo doInBackground(String[]... strings) {
-        String[] urls = strings[0];
+    protected MovieInfo doInBackground(String... strings) {
+        String configUrl = strings[0];
+        String moviesUrl = strings[1];
         OkHttpClient client = new OkHttpClient();
         Request reqImageUrlConfig = new Request.Builder()
-                .url(urls[0])
+                .url(configUrl)
                 .get()
                 .build();
         Request reqMoviePostersJPG = new Request.Builder()
-                .url(urls[1])
+                .url(moviesUrl)
                 .get()
                 .build();
         try {

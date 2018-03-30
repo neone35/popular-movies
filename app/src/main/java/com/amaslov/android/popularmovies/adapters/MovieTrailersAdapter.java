@@ -37,7 +37,7 @@ public class MovieTrailersAdapter extends RecyclerView.Adapter<MovieTrailersAdap
     @Override
     public ViewHolder onCreateViewHolder(@NonNull ViewGroup viewGroup, int viewType) {
         View v = LayoutInflater.from(viewGroup.getContext())
-                .inflate(R.layout.linear_trailer_item, viewGroup, false);
+                .inflate(R.layout.trailer_item, viewGroup, false);
         return new MovieTrailersAdapter.ViewHolder(v);
     }
 

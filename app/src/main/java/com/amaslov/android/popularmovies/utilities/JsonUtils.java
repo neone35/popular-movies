@@ -1,9 +1,11 @@
 package com.amaslov.android.popularmovies.utilities;
 
 import android.content.Context;
+import android.os.Parcelable;
 import android.util.Log;
 
 import com.amaslov.android.popularmovies.parcelables.MovieDetails;
+import com.amaslov.android.popularmovies.parcelables.MovieReviewInfo;
 import com.amaslov.android.popularmovies.parcelables.MovieTrailerInfo;
 
 import org.json.JSONArray;
@@ -76,26 +78,43 @@ public class JsonUtils {
                 movieVoteAverage, movieVoteCount, movieOverview);
     }
 
-    public static MovieTrailerInfo getMovieTrailerKeys(String movieTrailersJsonStr)
+    public static MovieTrailerInfo getMovieTrailersInfo(String movieTrailersJsonStr)
             throws JSONException {
 
         final String MOVIEDB_YT_TRAILER_KEY = "key";
         final String MOVIEDB_YT_TRAILER_NAME = "name";
 
         JSONObject moviesJSONObject = new JSONObject(movieTrailersJsonStr);
-        JSONArray trailersArray = moviesJSONObject.getJSONArray(MOVIEDB_RESULTS);
-        String[] movieTrailerKeys = new String[trailersArray.length()];
-        String[] movieTrailerNames = new String[trailersArray.length()];
+        String[] movieTrailerKeys = getParsedArray(moviesJSONObject, MOVIEDB_YT_TRAILER_KEY);
+        String[] movieTrailerNames = getParsedArray(moviesJSONObject, MOVIEDB_YT_TRAILER_NAME);
 
-        for (int i = 0; i < trailersArray.length(); i++) {
-            JSONObject oneTrailerResult = trailersArray.getJSONObject(i);
-            String oneTrailerKeyValue = oneTrailerResult.getString(MOVIEDB_YT_TRAILER_KEY); // gNXQQbgK_cc
-            String oneTrailerNameValue = oneTrailerResult.getString(MOVIEDB_YT_TRAILER_NAME); // Ti West on INDIANA JONES AND THE LAST CRUSADE
-            movieTrailerKeys[i] = oneTrailerKeyValue;
-            movieTrailerNames[i] = oneTrailerNameValue;
-        }
-        // /6uOMVZ6oG00xjq0KQiExRBw2s3P.jpg || 198663
+        // gNXQQbgK_cc || Ti West on INDIANA JONES AND THE LAST CRUSADE
         return new MovieTrailerInfo(movieTrailerKeys, movieTrailerNames);
     }
 
+    public static MovieReviewInfo getMovieReviewsInfo(String movieTrailersJsonStr)
+            throws JSONException {
+
+        final String MOVIEDB_REVIEW_AUTHOR = "author";
+        final String MOVIEDB_REVIEW_CONTENT = "content";
+
+        JSONObject moviesJSONObject = new JSONObject(movieTrailersJsonStr);
+        String[] movieReviewsAuthors = getParsedArray(moviesJSONObject, MOVIEDB_REVIEW_AUTHOR);
+        String[] movieReviewsContent = getParsedArray(moviesJSONObject, MOVIEDB_REVIEW_CONTENT);
+        // tricksy || Excellent movie. Best of the trilogy...
+        return new MovieReviewInfo(movieReviewsAuthors, movieReviewsContent);
+    }
+
+    private static String[] getParsedArray(JSONObject initialJSONObject, String JSON_KEY)
+            throws JSONException {
+        JSONArray inputJSONArray = initialJSONObject.getJSONArray(MOVIEDB_RESULTS);
+        String[] parsedValuesArray = new String[inputJSONArray.length()];
+
+        for (int i = 0; i < inputJSONArray.length(); i++) {
+            JSONObject oneResult = inputJSONArray.getJSONObject(i);
+            String oneValue = oneResult.getString(JSON_KEY);
+            parsedValuesArray[i] = oneValue;
+        }
+        return parsedValuesArray;
+    }
 }
