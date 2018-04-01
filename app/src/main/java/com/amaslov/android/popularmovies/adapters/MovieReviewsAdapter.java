@@ -47,8 +47,14 @@ public class MovieReviewsAdapter extends RecyclerView.Adapter<MovieReviewsAdapte
         TextView tvReviewAuthor = viewHolder.getReviewAuthor();
         tvReviewAuthor.setText(mMovieReviewInfo.getReviewAuthors()[position]);
         final ExpandableTextView etvReviewContent = viewHolder.getReviewContent();
-        etvReviewContent.setText(mMovieReviewInfo.getReviewContents()[position]);
-        etvReviewContent.setInterpolator(new OvershootInterpolator());
+        String reviewContent = mMovieReviewInfo.getReviewContents()[position];
+        etvReviewContent.setText(reviewContent);
+        // if review contents are short, don't show chevron and dont turn on expandable effect
+        if (reviewContent.length() < 200) {
+            viewHolder.getChevron().setVisibility(View.GONE);
+        } else {
+            etvReviewContent.setInterpolator(new OvershootInterpolator());
+        }
     }
 
     public class ViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
@@ -70,6 +76,10 @@ public class MovieReviewsAdapter extends RecyclerView.Adapter<MovieReviewsAdapte
 
         private ExpandableTextView getReviewContent() {
             return reviewContent;
+        }
+
+        private View getChevron() {
+            return expandCollapseChevron;
         }
 
         @Override

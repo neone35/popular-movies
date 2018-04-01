@@ -29,4 +29,6 @@
     <string name="getting_reviews">Getting reviews</string>
     <string name="author">Author</string>
     <string name="by">by</string>
+    <string name="no_reviews_found">No reviews found</string>
+    <string name="long_review_content">Excellent movie. Best of the trilogy. Lovely music. Nolan is a genius. So is Heath Ledger. Excellent movie. Best of the trilogy. Lovely music. Nolan is a genius. So is Heath Ledger.</string>
 </resources>

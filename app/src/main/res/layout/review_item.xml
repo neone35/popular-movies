@@ -44,16 +44,18 @@
         android:id="@+id/etv_review_content"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:ellipsize="end"
+        android:layout_marginBottom="@dimen/margin_8dp"
         android:maxLines="5"
         app:animation_duration="500"
-        tools:text="Excellent movie. Best of the trilogy. Lovely music. Nolan is a genius. So is Heath Ledger." />
+        android:ellipsize="middle"
+        tools:text="@string/long_review_content" />
 
     <View
         android:id="@+id/ic_chevron"
         android:layout_width="30dp"
         android:layout_height="30dp"
         android:layout_gravity="bottom|center"
+        android:layout_marginTop="-8dp"
         android:background="@drawable/ic_chevron_down" />
 
     <View

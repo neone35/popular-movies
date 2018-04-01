@@ -111,7 +111,7 @@ public class MovieDetailsActivity extends AppCompatActivity implements MovieTrai
                             reviewsRecyclerView.setAdapter(movieReviewsAdapter);
                             movieReviewsAdapter.notifyDataSetChanged();
                         } else {
-                            Toast.makeText(MovieDetailsActivity.this, getString(R.string.no_trailers_found), Toast.LENGTH_LONG).show();
+                            Toast.makeText(MovieDetailsActivity.this, getString(R.string.no_reviews_found), Toast.LENGTH_LONG).show();
                         }
                     }
 
