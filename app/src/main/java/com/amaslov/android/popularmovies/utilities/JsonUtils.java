@@ -12,6 +12,8 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.util.Arrays;
+
 import static android.content.ContentValues.TAG;
 
 public class JsonUtils {
@@ -46,16 +48,8 @@ public class JsonUtils {
             throws JSONException {
 
         JSONObject moviesJSONObject = new JSONObject(movieJsonStr);
-        JSONArray movieArray = moviesJSONObject.getJSONArray(MOVIEDB_RESULTS);
-        String[] moviePosterValues = new String[movieArray.length()];
-
-        for (int i = 0; i < movieArray.length(); i++) {
-            JSONObject oneMovieResult = movieArray.getJSONObject(i);
-            String oneMovieValue = oneMovieResult.getString(movieKey); // POSTER_PATH || ID
-            moviePosterValues[i] = oneMovieValue;
-        }
         // /6uOMVZ6oG00xjq0KQiExRBw2s3P.jpg || 198663
-        return moviePosterValues;
+        return getParsedArray(moviesJSONObject, movieKey); // movieKey POSTER_PATH | ID
     }
 
     public static MovieDetails getMovieDetails(String detailsJsonStr, String movieFullUrl)

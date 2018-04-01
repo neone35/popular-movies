@@ -47,7 +47,6 @@ public class MovieDetailsActivity extends AppCompatActivity implements MovieTrai
         activityMovieDetailsBinding.ibDescription.setBackgroundResource(R.drawable.button_details_press); // initial option
         receiveMainActivityIntent();
 
-
         activityMovieDetailsBinding.ibDescription.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -72,6 +71,13 @@ public class MovieDetailsActivity extends AppCompatActivity implements MovieTrai
                 setThisIncludeActive(activityMovieDetailsBinding.incMovieReviews);
                 reviewsRecyclerViewSetup();
                 loadReviewsTask(movieId);
+            }
+        });
+        activityMovieDetailsBinding.ibFavorite.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                v.setBackgroundResource(R.drawable.button_details_press);
+                // TODO: add movie to favorites DB
             }
         });
     }
