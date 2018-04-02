@@ -1,6 +1,9 @@
 package com.amaslov.android.popularmovies;
 
+import android.content.ContentValues;
 import android.content.Intent;
+import android.database.Cursor;
+import android.database.sqlite.SQLiteDatabase;
 import android.databinding.DataBindingUtil;
 import android.support.constraint.ConstraintLayout;
 import android.support.v4.app.Fragment;
@@ -27,17 +30,24 @@ import com.amaslov.android.popularmovies.fragments.YtPlayerFragment;
 import com.amaslov.android.popularmovies.parcelables.MovieDetails;
 import com.amaslov.android.popularmovies.parcelables.MovieReviewInfo;
 import com.amaslov.android.popularmovies.parcelables.MovieTrailerInfo;
+import com.amaslov.android.popularmovies.sqlitedb.FavoritesContract;
+import com.amaslov.android.popularmovies.sqlitedb.FavoritesDbHelper;
 import com.amaslov.android.popularmovies.utilities.UrlUtils;
 import com.squareup.picasso.Picasso;
+
+import java.util.Arrays;
 
 public class MovieDetailsActivity extends AppCompatActivity implements MovieTrailersAdapter.ListItemClickListener {
 
     private static final String TAG = MovieDetailsActivity.class.getName();
     final private static String YOUTUBE_FRAGMENT_TAG = "youtube_player_fragment";
     private static String movieId = "";
+    private static String movieFullUrl = "";
+    private MovieDetails mMovieDetails;
     private RecyclerView trailerRecyclerView;
     private RecyclerView reviewsRecyclerView;
     private ActivityMovieDetailsBinding activityMovieDetailsBinding;
+    private SQLiteDatabase mFavoritesDB;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -77,9 +87,52 @@ public class MovieDetailsActivity extends AppCompatActivity implements MovieTrai
             @Override
             public void onClick(View v) {
                 v.setBackgroundResource(R.drawable.button_details_press);
-                // TODO: add movie to favorites DB
+                if (addToFavorites(mMovieDetails)) {
+                    showToast("'" + mMovieDetails.getTitle() + "' successfully added to favorites");
+                    Log.d(TAG, "onClick: " + getDetailsTable().getCount());
+                }
             }
         });
+    }
+
+    private Cursor getDetailsTable() {
+        String favoritesTableName = FavoritesContract.FavoritesEntry.TABLE_NAME_MOVIE_FAVORITES;
+        String columnTitle = FavoritesContract.FavoritesEntry.COLUMN_MOVIE_TITLE;
+        FavoritesDbHelper favoritesDbHelper = new FavoritesDbHelper(this);
+        mFavoritesDB = favoritesDbHelper.getReadableDatabase();
+        return mFavoritesDB.query(favoritesTableName, null, null, null, null, null, columnTitle);
+    }
+
+    public void showToast(String message) {
+        Toast.makeText(MovieDetailsActivity.this, message, Toast.LENGTH_SHORT).show();
+    }
+
+    public boolean addToFavorites(MovieDetails movieDetails) {
+        // Check if movie details fields are not empty
+        String FAVORITES_ERROR = "Can't add to favorites.";
+        String[] detailsFields = movieDetails.getAllDetails();
+        String[] fieldErrors = {"Poster URL is empty. ", "Movie title is empty. ", "Movie release date is empty. ",
+                "Movie vote average is empty. ", "Movie vote count is empty. ", "Movie overview is empty. "};
+        for (int i = 0; i < detailsFields.length; i++) {
+            if (detailsFields[i].isEmpty()) {
+                showToast(fieldErrors[i] + FAVORITES_ERROR);
+                return false;
+            }
+        }
+
+        // Insert into favorites table otherwise
+        String favoritesTableName = FavoritesContract.FavoritesEntry.TABLE_NAME_MOVIE_FAVORITES;
+        ContentValues detailsValues = new ContentValues();
+        detailsValues.put(FavoritesContract.FavoritesEntry.COLUMN_MOVIE_FULL_URL, movieDetails.getMoviePosterUrl());
+        detailsValues.put(FavoritesContract.FavoritesEntry.COLUMN_MOVIE_TITLE, movieDetails.getTitle());
+        detailsValues.put(FavoritesContract.FavoritesEntry.COLUMN_MOVIE_RELEASE_DATE, movieDetails.getMovieReleaseDate());
+        detailsValues.put(FavoritesContract.FavoritesEntry.COLUMN_MOVIE_VOTE_AVERAGE, movieDetails.getVoteAverage());
+        detailsValues.put(FavoritesContract.FavoritesEntry.COLUMN_MOVIE_VOTE_COUNT, movieDetails.getVoteCount());
+        detailsValues.put(FavoritesContract.FavoritesEntry.COLUMN_MOVIE_OVERVIEW, movieDetails.getOverview());
+        FavoritesDbHelper favoritesDbHelper = new FavoritesDbHelper(this);
+        mFavoritesDB = favoritesDbHelper.getWritableDatabase();
+        mFavoritesDB.insert(favoritesTableName, null, detailsValues);
+        return true;
     }
 
     @Override
@@ -202,7 +255,7 @@ public class MovieDetailsActivity extends AppCompatActivity implements MovieTrai
     private void receiveMainActivityIntent() {
         Intent intent = getIntent();
         movieId = intent.getStringExtra(MainActivity.EXTRA_MOVIE_ID);
-        String movieFullUrl = intent.getStringExtra(MainActivity.EXTRA_MOVIE_FULL_URL);
+        movieFullUrl = intent.getStringExtra(MainActivity.EXTRA_MOVIE_FULL_URL);
         displayMovieDetailsTask(movieId, movieFullUrl);
     }
 
@@ -212,6 +265,7 @@ public class MovieDetailsActivity extends AppCompatActivity implements MovieTrai
                     @Override
                     public void onSuccess(MovieDetails movieDetails) {
                         // Get data from returned Parcelable
+                        mMovieDetails = movieDetails;
                         String posterUrl = movieDetails.getMoviePosterUrl();
                         String title = movieDetails.getTitle();
                         String date = movieDetails.getMovieReleaseDate();

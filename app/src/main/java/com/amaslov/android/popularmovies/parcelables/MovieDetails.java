@@ -63,6 +63,10 @@ public class MovieDetails implements Parcelable {
         return overview;
     }
 
+    public String[] getAllDetails() {
+        return new String[]{moviePosterUrl, title, releaseDate, voteAverage, voteCount, overview};
+    }
+
     @Override
     public void writeToParcel(Parcel dest, int flags) {
         dest.writeString(this.moviePosterUrl);

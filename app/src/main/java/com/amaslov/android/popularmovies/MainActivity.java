@@ -141,9 +141,8 @@ public class MainActivity extends AppCompatActivity implements MoviePosterAdapte
     @Override
     public void onListItemClick(String movieId, String movieFullUrl) {
         Intent movieDetailsIntent = new Intent(this, MovieDetailsActivity.class);
-        Log.d(getLocalClassName(), "onListItemClick: " + movieId);
-        movieDetailsIntent.putExtra(EXTRA_MOVIE_ID, movieId);
-        movieDetailsIntent.putExtra(EXTRA_MOVIE_FULL_URL, movieFullUrl);
+        movieDetailsIntent.putExtra(EXTRA_MOVIE_ID, movieId); // 18028
+        movieDetailsIntent.putExtra(EXTRA_MOVIE_FULL_URL, movieFullUrl); // poster image url
         startActivity(movieDetailsIntent);
     }
 
