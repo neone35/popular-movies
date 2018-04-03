@@ -1,6 +1,7 @@
 package com.amaslov.android.popularmovies;
 
 import android.content.ContentValues;
+import android.content.Context;
 import android.content.Intent;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
@@ -32,6 +33,7 @@ import com.amaslov.android.popularmovies.parcelables.MovieReviewInfo;
 import com.amaslov.android.popularmovies.parcelables.MovieTrailerInfo;
 import com.amaslov.android.popularmovies.sqlitedb.FavoritesContract;
 import com.amaslov.android.popularmovies.sqlitedb.FavoritesDbHelper;
+import com.amaslov.android.popularmovies.utilities.SqlUtils;
 import com.amaslov.android.popularmovies.utilities.UrlUtils;
 import com.squareup.picasso.Picasso;
 
@@ -41,6 +43,9 @@ public class MovieDetailsActivity extends AppCompatActivity implements MovieTrai
 
     private static final String TAG = MovieDetailsActivity.class.getName();
     final private static String YOUTUBE_FRAGMENT_TAG = "youtube_player_fragment";
+    final private static String FAVORITE_ACTIVE = "favorite_active";
+    final private static String READABLE_DB = "readable";
+    final private static String WRITABLE_DB = "readable";
     private static String movieId = "";
     private static String movieFullUrl = "";
     private MovieDetails mMovieDetails;
@@ -56,6 +61,7 @@ public class MovieDetailsActivity extends AppCompatActivity implements MovieTrai
                 DataBindingUtil.setContentView(this, R.layout.activity_movie_details);
         activityMovieDetailsBinding.ibDescription.setBackgroundResource(R.drawable.button_details_press); // initial option
         receiveMainActivityIntent();
+        checkIfFavorite();
 
         activityMovieDetailsBinding.ibDescription.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -86,21 +92,68 @@ public class MovieDetailsActivity extends AppCompatActivity implements MovieTrai
         activityMovieDetailsBinding.ibFavorite.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                v.setBackgroundResource(R.drawable.button_details_press);
-                if (addToFavorites(mMovieDetails)) {
-                    showToast("'" + mMovieDetails.getTitle() + "' successfully added to favorites");
-                    Log.d(TAG, "onClick: " + getDetailsTable().getCount());
+                if (v.getTag() == null) {
+                    v.setBackgroundResource(R.drawable.button_details_press);
+                    v.setTag(FAVORITE_ACTIVE);
+                    if (addToFavorites(mMovieDetails)) {
+                        showToast("'" + mMovieDetails.getTitle() + "' successfully added to favorites");
+                        Log.d(TAG, "onClick: " + SqlUtils.getFavoritesTable(MovieDetailsActivity.this).getCount());
+                    }
+                } else {
+                    v.setBackgroundResource(R.drawable.button_details_inactive);
+                    v.setTag(null);
+                    if (removeFromFavorites(movieId)) {
+                        showToast("'" + mMovieDetails.getTitle() + "' successfully removed from favorites");
+                        Log.d(TAG, "onClick: " + SqlUtils.getFavoritesTable(MovieDetailsActivity.this).getCount());
+                    }
                 }
             }
         });
     }
 
-    private Cursor getDetailsTable() {
-        String favoritesTableName = FavoritesContract.FavoritesEntry.TABLE_NAME_MOVIE_FAVORITES;
-        String columnTitle = FavoritesContract.FavoritesEntry.COLUMN_MOVIE_TITLE;
+    public SQLiteDatabase getFavoritesDB(String action) {
         FavoritesDbHelper favoritesDbHelper = new FavoritesDbHelper(this);
-        mFavoritesDB = favoritesDbHelper.getReadableDatabase();
-        return mFavoritesDB.query(favoritesTableName, null, null, null, null, null, columnTitle);
+        if (action.equals(READABLE_DB)) {
+            mFavoritesDB = favoritesDbHelper.getReadableDatabase();
+        } else if (action.equals(WRITABLE_DB)) {
+            mFavoritesDB = favoritesDbHelper.getWritableDatabase();
+        }
+        return mFavoritesDB;
+    }
+
+    public void checkIfFavorite() {
+        String favoritesTableName = FavoritesContract.FavoritesEntry.TABLE_NAME_MOVIE_FAVORITES;
+        String columnMovieID = FavoritesContract.FavoritesEntry._ID;
+        mFavoritesDB = getFavoritesDB(READABLE_DB);
+        // Filter results WHERE "_ID" = 'movieId'
+        String selectionID = columnMovieID + " = ?";
+        Cursor favoriteSelector = mFavoritesDB.query(favoritesTableName, null, selectionID, new String[]{movieId}, null, null, columnMovieID);
+        Log.d(TAG, "checkIfFavorite: " + favoriteSelector.getCount());
+        if (favoriteSelector.getCount() != 0) {
+            activityMovieDetailsBinding.ibFavorite.setTag(FAVORITE_ACTIVE);
+            activityMovieDetailsBinding.ibFavorite.setBackgroundResource(R.drawable.button_details_press);
+            favoriteSelector.close();
+        } else {
+            activityMovieDetailsBinding.ibFavorite.setTag(null);
+            activityMovieDetailsBinding.ibFavorite.setBackgroundResource(R.drawable.button_details_inactive);
+        }
+    }
+
+    public boolean removeFromFavorites(String movieID) {
+        String favoritesTableName = FavoritesContract.FavoritesEntry.TABLE_NAME_MOVIE_FAVORITES;
+        String columnMovieID = FavoritesContract.FavoritesEntry._ID;
+        mFavoritesDB = getFavoritesDB(WRITABLE_DB);
+        int rowsDeleted = mFavoritesDB.delete(favoritesTableName, columnMovieID + "=" + movieID, null);
+        if (rowsDeleted == 1) {
+            return true;
+        } else if (rowsDeleted > 1) {
+            // show additional toast informing about multiple values removed
+            showToast("More than one movie removed from favorites!");
+            return true;
+        } else {
+            showToast("ERROR: Movie not removed from favorites");
+            return false;
+        }
     }
 
     public void showToast(String message) {
@@ -123,6 +176,7 @@ public class MovieDetailsActivity extends AppCompatActivity implements MovieTrai
         // Insert into favorites table otherwise
         String favoritesTableName = FavoritesContract.FavoritesEntry.TABLE_NAME_MOVIE_FAVORITES;
         ContentValues detailsValues = new ContentValues();
+        detailsValues.put(FavoritesContract.FavoritesEntry._ID, movieId);
         detailsValues.put(FavoritesContract.FavoritesEntry.COLUMN_MOVIE_FULL_URL, movieDetails.getMoviePosterUrl());
         detailsValues.put(FavoritesContract.FavoritesEntry.COLUMN_MOVIE_TITLE, movieDetails.getTitle());
         detailsValues.put(FavoritesContract.FavoritesEntry.COLUMN_MOVIE_RELEASE_DATE, movieDetails.getMovieReleaseDate());
