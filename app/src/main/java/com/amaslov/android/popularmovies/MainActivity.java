@@ -5,6 +5,8 @@ import android.content.Intent;
 import android.databinding.DataBindingUtil;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
+import android.support.annotation.NonNull;
+import android.support.design.widget.BottomNavigationView;
 import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -58,7 +60,7 @@ public class MainActivity extends AppCompatActivity implements MoviePosterAdapte
 
         if (isOnline()) {
             noInternetSnack.dismiss();
-            radioGroupListenerSetup();
+            bottomNavListenerSetup();
         } else {
             noInternetSnack.show();
             if (posterRecyclerView.getAdapter() != null)
@@ -81,21 +83,27 @@ public class MainActivity extends AppCompatActivity implements MoviePosterAdapte
         }
     }
 
-    private void radioGroupListenerSetup() {
-        mainBinding.popularTopRadioGroup.setOnCheckedChangeListener(new RadioGroup.OnCheckedChangeListener() {
+    private void bottomNavListenerSetup() {
+        BottomNavigationView bottomNavigationView = findViewById(R.id.bnv_main);
+
+        mainBinding.bnvMain.setOnNavigationItemSelectedListener(new BottomNavigationView.OnNavigationItemSelectedListener() {
             @Override
-            public void onCheckedChanged(RadioGroup radioGroup, int checkedId) {
-                switch (checkedId) {
-                    case R.id.rb_popular:
+            public boolean onNavigationItemSelected(@NonNull MenuItem item) {
+                switch (item.getItemId()) {
+                    case R.id.action_popular:
                         displayMoviePosters(UrlUtils.MOVIE_DB_PATH_POPULAR);
-                        break;
-                    case R.id.rb_top_rated:
+                        return true;
+                    case R.id.action_top_rated:
                         displayMoviePosters(UrlUtils.MOVIE_DB_PATH_TOP_RATED);
-                        break;
-                    case R.id.rb_upcoming:
+                        return true;
+                    case R.id.action_upcoming:
                         displayMoviePosters(UrlUtils.MOVIE_DB_PATH_UPCOMING);
-                        break;
+                        return true;
+                    case R.id.action_favorites:
+                        // TODO: populate view with DB cursor
+                        return true;
                 }
+                return false;
             }
         });
     }

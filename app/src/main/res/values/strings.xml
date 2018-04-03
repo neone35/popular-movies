@@ -5,7 +5,6 @@
     <string name="release_date">Release date</string>
     <string name="average_vote">Average vote</string>
     <string name="votes">Votes</string>
-
     <string name="getting_movies">Getting movies</string>
     <string name="getting_movie_details">Getting movie details</string>
     <string name="please_wait">Please wait&#8230;</string>
@@ -31,4 +30,5 @@
     <string name="by">by</string>
     <string name="no_reviews_found">No reviews found</string>
     <string name="long_review_content">Excellent movie. Best of the trilogy. Lovely music. Nolan is a genius. So is Heath Ledger. Excellent movie. Best of the trilogy. Lovely music. Nolan is a genius. So is Heath Ledger.</string>
+    <string name="favorites">Favorites</string>
 </resources>

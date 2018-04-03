@@ -44,15 +44,11 @@ public class MovieDetailsActivity extends AppCompatActivity implements MovieTrai
     private static final String TAG = MovieDetailsActivity.class.getName();
     final private static String YOUTUBE_FRAGMENT_TAG = "youtube_player_fragment";
     final private static String FAVORITE_ACTIVE = "favorite_active";
-    final private static String READABLE_DB = "readable";
-    final private static String WRITABLE_DB = "readable";
     private static String movieId = "";
-    private static String movieFullUrl = "";
     private MovieDetails mMovieDetails;
     private RecyclerView trailerRecyclerView;
     private RecyclerView reviewsRecyclerView;
     private ActivityMovieDetailsBinding activityMovieDetailsBinding;
-    private SQLiteDatabase mFavoritesDB;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -93,16 +89,18 @@ public class MovieDetailsActivity extends AppCompatActivity implements MovieTrai
             @Override
             public void onClick(View v) {
                 if (v.getTag() == null) {
-                    v.setBackgroundResource(R.drawable.button_details_press);
+                    // set favorite button active and add to favorites database
+                    v.setBackgroundResource(R.drawable.button_favorite_active);
                     v.setTag(FAVORITE_ACTIVE);
-                    if (addToFavorites(mMovieDetails)) {
+                    if (SqlUtils.addToFavorites(mMovieDetails, movieId, MovieDetailsActivity.this)) {
                         showToast("'" + mMovieDetails.getTitle() + "' successfully added to favorites");
                         Log.d(TAG, "onClick: " + SqlUtils.getFavoritesTable(MovieDetailsActivity.this).getCount());
                     }
                 } else {
+                    // set favorite button disabled and remove from favorites database
                     v.setBackgroundResource(R.drawable.button_details_inactive);
                     v.setTag(null);
-                    if (removeFromFavorites(movieId)) {
+                    if (SqlUtils.removeFromFavorites(movieId, MovieDetailsActivity.this)) {
                         showToast("'" + mMovieDetails.getTitle() + "' successfully removed from favorites");
                         Log.d(TAG, "onClick: " + SqlUtils.getFavoritesTable(MovieDetailsActivity.this).getCount());
                     }
@@ -111,27 +109,15 @@ public class MovieDetailsActivity extends AppCompatActivity implements MovieTrai
         });
     }
 
-    public SQLiteDatabase getFavoritesDB(String action) {
-        FavoritesDbHelper favoritesDbHelper = new FavoritesDbHelper(this);
-        if (action.equals(READABLE_DB)) {
-            mFavoritesDB = favoritesDbHelper.getReadableDatabase();
-        } else if (action.equals(WRITABLE_DB)) {
-            mFavoritesDB = favoritesDbHelper.getWritableDatabase();
-        }
-        return mFavoritesDB;
-    }
-
     public void checkIfFavorite() {
-        String favoritesTableName = FavoritesContract.FavoritesEntry.TABLE_NAME_MOVIE_FAVORITES;
-        String columnMovieID = FavoritesContract.FavoritesEntry._ID;
-        mFavoritesDB = getFavoritesDB(READABLE_DB);
+        SQLiteDatabase mFavoritesDB = SqlUtils.getFavoritesDbAs(SqlUtils.READABLE_DB, MovieDetailsActivity.this);
         // Filter results WHERE "_ID" = 'movieId'
-        String selectionID = columnMovieID + " = ?";
-        Cursor favoriteSelector = mFavoritesDB.query(favoritesTableName, null, selectionID, new String[]{movieId}, null, null, columnMovieID);
+        String selectionID = SqlUtils.columnMovieID + " = ?";
+        Cursor favoriteSelector = mFavoritesDB.query(SqlUtils.favoritesTableName, null, selectionID, new String[]{movieId}, null, null, SqlUtils.columnMovieID);
         Log.d(TAG, "checkIfFavorite: " + favoriteSelector.getCount());
         if (favoriteSelector.getCount() != 0) {
             activityMovieDetailsBinding.ibFavorite.setTag(FAVORITE_ACTIVE);
-            activityMovieDetailsBinding.ibFavorite.setBackgroundResource(R.drawable.button_details_press);
+            activityMovieDetailsBinding.ibFavorite.setBackgroundResource(R.drawable.button_favorite_active);
             favoriteSelector.close();
         } else {
             activityMovieDetailsBinding.ibFavorite.setTag(null);
@@ -139,54 +125,8 @@ public class MovieDetailsActivity extends AppCompatActivity implements MovieTrai
         }
     }
 
-    public boolean removeFromFavorites(String movieID) {
-        String favoritesTableName = FavoritesContract.FavoritesEntry.TABLE_NAME_MOVIE_FAVORITES;
-        String columnMovieID = FavoritesContract.FavoritesEntry._ID;
-        mFavoritesDB = getFavoritesDB(WRITABLE_DB);
-        int rowsDeleted = mFavoritesDB.delete(favoritesTableName, columnMovieID + "=" + movieID, null);
-        if (rowsDeleted == 1) {
-            return true;
-        } else if (rowsDeleted > 1) {
-            // show additional toast informing about multiple values removed
-            showToast("More than one movie removed from favorites!");
-            return true;
-        } else {
-            showToast("ERROR: Movie not removed from favorites");
-            return false;
-        }
-    }
-
     public void showToast(String message) {
         Toast.makeText(MovieDetailsActivity.this, message, Toast.LENGTH_SHORT).show();
-    }
-
-    public boolean addToFavorites(MovieDetails movieDetails) {
-        // Check if movie details fields are not empty
-        String FAVORITES_ERROR = "Can't add to favorites.";
-        String[] detailsFields = movieDetails.getAllDetails();
-        String[] fieldErrors = {"Poster URL is empty. ", "Movie title is empty. ", "Movie release date is empty. ",
-                "Movie vote average is empty. ", "Movie vote count is empty. ", "Movie overview is empty. "};
-        for (int i = 0; i < detailsFields.length; i++) {
-            if (detailsFields[i].isEmpty()) {
-                showToast(fieldErrors[i] + FAVORITES_ERROR);
-                return false;
-            }
-        }
-
-        // Insert into favorites table otherwise
-        String favoritesTableName = FavoritesContract.FavoritesEntry.TABLE_NAME_MOVIE_FAVORITES;
-        ContentValues detailsValues = new ContentValues();
-        detailsValues.put(FavoritesContract.FavoritesEntry._ID, movieId);
-        detailsValues.put(FavoritesContract.FavoritesEntry.COLUMN_MOVIE_FULL_URL, movieDetails.getMoviePosterUrl());
-        detailsValues.put(FavoritesContract.FavoritesEntry.COLUMN_MOVIE_TITLE, movieDetails.getTitle());
-        detailsValues.put(FavoritesContract.FavoritesEntry.COLUMN_MOVIE_RELEASE_DATE, movieDetails.getMovieReleaseDate());
-        detailsValues.put(FavoritesContract.FavoritesEntry.COLUMN_MOVIE_VOTE_AVERAGE, movieDetails.getVoteAverage());
-        detailsValues.put(FavoritesContract.FavoritesEntry.COLUMN_MOVIE_VOTE_COUNT, movieDetails.getVoteCount());
-        detailsValues.put(FavoritesContract.FavoritesEntry.COLUMN_MOVIE_OVERVIEW, movieDetails.getOverview());
-        FavoritesDbHelper favoritesDbHelper = new FavoritesDbHelper(this);
-        mFavoritesDB = favoritesDbHelper.getWritableDatabase();
-        mFavoritesDB.insert(favoritesTableName, null, detailsValues);
-        return true;
     }
 
     @Override
@@ -291,8 +231,10 @@ public class MovieDetailsActivity extends AppCompatActivity implements MovieTrai
         ConstraintLayout parentConstraint = activityMovieDetailsBinding.constraintLayout;
         int allChildCount = parentConstraint.getChildCount();
         for (int i = 0; i < allChildCount; i++) {
-            if (parentConstraint.getChildAt(i) instanceof ImageButton) {
-                parentConstraint.getChildAt(i).setBackgroundResource(R.drawable.button_details_inactive);
+            View childButton = parentConstraint.getChildAt(i);
+            // ignore favoritesButton when searching for all imageButtons
+            if (childButton instanceof ImageButton && childButton.getId() != R.id.ib_favorite) {
+                childButton.setBackgroundResource(R.drawable.button_details_inactive);
             }
         }
         // set selected button active
@@ -309,7 +251,7 @@ public class MovieDetailsActivity extends AppCompatActivity implements MovieTrai
     private void receiveMainActivityIntent() {
         Intent intent = getIntent();
         movieId = intent.getStringExtra(MainActivity.EXTRA_MOVIE_ID);
-        movieFullUrl = intent.getStringExtra(MainActivity.EXTRA_MOVIE_FULL_URL);
+        String movieFullUrl = intent.getStringExtra(MainActivity.EXTRA_MOVIE_FULL_URL);
         displayMovieDetailsTask(movieId, movieFullUrl);
     }
 

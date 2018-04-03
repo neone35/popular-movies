@@ -178,7 +178,7 @@
                 app:layout_constraintEnd_toEndOf="@+id/constraintLayout2"
                 app:layout_constraintStart_toEndOf="@+id/ib_description"
                 app:layout_constraintTop_toTopOf="@+id/ib_description"
-                app:srcCompat="@drawable/ic_star_outline" />
+                app:srcCompat="@drawable/ic_star_fav" />
 
             <ImageButton
                 android:id="@+id/ib_reviews"
