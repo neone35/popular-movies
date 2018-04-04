@@ -2,7 +2,9 @@ package com.amaslov.android.popularmovies;
 
 import android.content.Context;
 import android.content.Intent;
+import android.database.Cursor;
 import android.databinding.DataBindingUtil;
+import android.graphics.Point;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.support.annotation.NonNull;
@@ -14,17 +16,23 @@ import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.DisplayMetrics;
 import android.util.Log;
+import android.view.Display;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.Adapter;
 import android.widget.RadioGroup;
 
+import com.amaslov.android.popularmovies.adapters.MovieFavoritesAdapter;
 import com.amaslov.android.popularmovies.adapters.MoviePosterAdapter;
 import com.amaslov.android.popularmovies.asynctasks.MovieInfoTask;
 import com.amaslov.android.popularmovies.asynctasks.OnEventListener;
 import com.amaslov.android.popularmovies.databinding.ActivityMainBinding;
 import com.amaslov.android.popularmovies.parcelables.MovieInfo;
+import com.amaslov.android.popularmovies.utilities.SqlUtils;
 import com.amaslov.android.popularmovies.utilities.UrlUtils;
+
+import static com.amaslov.android.popularmovies.utilities.SqlUtils.getFavoritesTable;
 
 
 public class MainActivity extends AppCompatActivity implements MoviePosterAdapter.ListItemClickListener {
@@ -35,6 +43,7 @@ public class MainActivity extends AppCompatActivity implements MoviePosterAdapte
     ActivityMainBinding mainBinding;
     private RecyclerView posterRecyclerView;
     private Snackbar noInternetSnack = null;
+    private MovieFavoritesAdapter movieFavoritesAdapter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -42,7 +51,7 @@ public class MainActivity extends AppCompatActivity implements MoviePosterAdapte
         mainBinding = DataBindingUtil.setContentView(this, R.layout.activity_main);
         actionBarSetup();
         recyclerViewSetup();
-        displayMoviePosters(UrlUtils.MOVIE_DB_PATH_POPULAR); //default
+        displayFavorites(); //default
 
         noInternetSnack = Snackbar.make(mainBinding.mainConstrainLayout,
                 getString(R.string.no_internet_msg), Snackbar.LENGTH_LONG);
@@ -66,6 +75,7 @@ public class MainActivity extends AppCompatActivity implements MoviePosterAdapte
             if (posterRecyclerView.getAdapter() != null)
                 posterRecyclerView.setAdapter(null);
         }
+        movieFavoritesAdapter.swapCursor(SqlUtils.getFavoritesTable(MainActivity.this));
     }
 
     public boolean isOnline() {
@@ -90,6 +100,9 @@ public class MainActivity extends AppCompatActivity implements MoviePosterAdapte
             @Override
             public boolean onNavigationItemSelected(@NonNull MenuItem item) {
                 switch (item.getItemId()) {
+                    case R.id.action_favorites:
+                        displayFavorites();
+                        return true;
                     case R.id.action_popular:
                         displayMoviePosters(UrlUtils.MOVIE_DB_PATH_POPULAR);
                         return true;
@@ -99,13 +112,16 @@ public class MainActivity extends AppCompatActivity implements MoviePosterAdapte
                     case R.id.action_upcoming:
                         displayMoviePosters(UrlUtils.MOVIE_DB_PATH_UPCOMING);
                         return true;
-                    case R.id.action_favorites:
-                        // TODO: populate view with DB cursor
-                        return true;
                 }
                 return false;
             }
         });
+    }
+
+    private void displayFavorites() {
+        Cursor favoritesDbCursor = SqlUtils.getFavoritesTable(MainActivity.this);
+        movieFavoritesAdapter = new MovieFavoritesAdapter(favoritesDbCursor, MainActivity.this);
+        posterRecyclerView.setAdapter(movieFavoritesAdapter);
     }
 
     private void recyclerViewSetup() {
@@ -116,11 +132,12 @@ public class MainActivity extends AppCompatActivity implements MoviePosterAdapte
     }
 
     private int numberOfColumns() {
-        DisplayMetrics displayMetrics = new DisplayMetrics();
-        getWindowManager().getDefaultDisplay().getMetrics(displayMetrics);
+        DisplayMetrics metrics = new DisplayMetrics();
+        getWindowManager().getDefaultDisplay().getMetrics(metrics);
         // You can change this divider to adjust the size of the poster
         int widthDivider = 300;
-        int width = displayMetrics.widthPixels;
+        int width = metrics.widthPixels;
+        Log.d(TAG, "numberOfColumns: " + width);
         int nColumns = width / widthDivider;
         if (nColumns < 2) return 2;
         return nColumns;

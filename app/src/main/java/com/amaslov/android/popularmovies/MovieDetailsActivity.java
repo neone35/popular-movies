@@ -44,6 +44,11 @@ public class MovieDetailsActivity extends AppCompatActivity implements MovieTrai
     private static final String TAG = MovieDetailsActivity.class.getName();
     final private static String YOUTUBE_FRAGMENT_TAG = "youtube_player_fragment";
     final private static String FAVORITE_ACTIVE = "favorite_active";
+    final public static String EXTRA_FAVORITE_TITLE = "favorite_movie_title";
+    final public static String EXTRA_FAVORITE_RELEASE_DATE = "favorite_release_date";
+    final public static String EXTRA_FAVORITE_VOTE_AVERAGE = "favorite_vote_average";
+    final public static String EXTRA_FAVORITE_VOTE_COUNT = "favorite_vote_count";
+    final public static String EXTRA_FAVORITE_OVERVIEW = "favorite_overview";
     private static String movieId = "";
     private MovieDetails mMovieDetails;
     private RecyclerView trailerRecyclerView;
@@ -112,8 +117,8 @@ public class MovieDetailsActivity extends AppCompatActivity implements MovieTrai
     public void checkIfFavorite() {
         SQLiteDatabase mFavoritesDB = SqlUtils.getFavoritesDbAs(SqlUtils.READABLE_DB, MovieDetailsActivity.this);
         // Filter results WHERE "_ID" = 'movieId'
-        String selectionID = SqlUtils.columnMovieID + " = ?";
-        Cursor favoriteSelector = mFavoritesDB.query(SqlUtils.favoritesTableName, null, selectionID, new String[]{movieId}, null, null, SqlUtils.columnMovieID);
+        String selectID = SqlUtils.columnMovieID + " = ?";
+        Cursor favoriteSelector = mFavoritesDB.query(SqlUtils.favoritesTableName, null, selectID, new String[]{movieId}, null, null, SqlUtils.columnMovieID);
         Log.d(TAG, "checkIfFavorite: " + favoriteSelector.getCount());
         if (favoriteSelector.getCount() != 0) {
             activityMovieDetailsBinding.ibFavorite.setTag(FAVORITE_ACTIVE);
@@ -252,7 +257,45 @@ public class MovieDetailsActivity extends AppCompatActivity implements MovieTrai
         Intent intent = getIntent();
         movieId = intent.getStringExtra(MainActivity.EXTRA_MOVIE_ID);
         String movieFullUrl = intent.getStringExtra(MainActivity.EXTRA_MOVIE_FULL_URL);
-        displayMovieDetailsTask(movieId, movieFullUrl);
+        if (intent.hasExtra(EXTRA_FAVORITE_TITLE))
+            displayFavoriteDetails(intent, movieFullUrl);
+        else
+            displayMovieDetailsTask(movieId, movieFullUrl);
+    }
+
+    // Calculate poster dimensions according to screen dpi programatically
+    private int[] getPosterDimensions() {
+        int detailsPosterWidth =
+                (int) (getResources().getDimension(R.dimen.details_poster_width) /
+                        getResources().getDisplayMetrics().density);
+        int detailsPosterHeight =
+                (int) (getResources().getDimension(R.dimen.details_poster_height) /
+                        getResources().getDisplayMetrics().density);
+        return new int[]{detailsPosterWidth, detailsPosterHeight};
+    }
+
+    private void displayFavoriteDetails(Intent intent, String posterUrl) {
+        String movieTitle = intent.getStringExtra(EXTRA_FAVORITE_TITLE);
+        String movieReleaseDate = intent.getStringExtra(EXTRA_FAVORITE_RELEASE_DATE);
+        String movieVoteAverage = intent.getStringExtra(EXTRA_FAVORITE_VOTE_AVERAGE);
+        String movieVoteCount = intent.getStringExtra(EXTRA_FAVORITE_VOTE_COUNT);
+        String movieOverview = intent.getStringExtra(EXTRA_FAVORITE_OVERVIEW);
+        // Calculate poster dimensions according to screen dpi programatically
+        int detailsPosterWidth = getPosterDimensions()[0];
+        int detailsPosterHeight = getPosterDimensions()[1];
+        Picasso.with(MovieDetailsActivity.this)
+                .load(posterUrl)
+                .placeholder(R.drawable.poster_placeholder)
+                .centerCrop()
+                .resize(detailsPosterWidth, detailsPosterHeight)
+                .into(activityMovieDetailsBinding.ivPoster);
+        TextView tvMovieTitle = activityMovieDetailsBinding.incMovieOverview.findViewById(R.id.tv_title);
+        tvMovieTitle.setText(movieTitle);
+        TextView tvMovieOverview = activityMovieDetailsBinding.incMovieOverview.findViewById(R.id.tv_overview);
+        tvMovieOverview.setText(movieOverview);
+        activityMovieDetailsBinding.tvDate.setText(movieReleaseDate);
+        activityMovieDetailsBinding.tvAverageVoteAppend.setText(movieVoteAverage);
+        activityMovieDetailsBinding.tvVoteCount.setText(movieVoteCount);
     }
 
     private void displayMovieDetailsTask(String movieId, String movieFullUrl) {
@@ -268,13 +311,8 @@ public class MovieDetailsActivity extends AppCompatActivity implements MovieTrai
                         String voteAverage = movieDetails.getVoteAverage() + " " + getString(R.string.vote_average_out_of_ten);
                         String voteCount = movieDetails.getVoteCount();
                         String overview = movieDetails.getOverview();
-                        // Calculate poster dimensions according to screen dpi programatically
-                        int detailsPosterWidth =
-                                (int) (getResources().getDimension(R.dimen.details_poster_width) /
-                                        getResources().getDisplayMetrics().density);
-                        int detailsPosterHeight =
-                                (int) (getResources().getDimension(R.dimen.details_poster_height) /
-                                        getResources().getDisplayMetrics().density);
+                        int detailsPosterWidth = getPosterDimensions()[0];
+                        int detailsPosterHeight = getPosterDimensions()[1];
                         Log.d(getLocalClassName(), "onSuccess: " + detailsPosterWidth + " " + detailsPosterHeight);
                         // Bind data to views
                         Picasso.with(MovieDetailsActivity.this)

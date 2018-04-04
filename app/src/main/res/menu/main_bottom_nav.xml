@@ -1,6 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
     <item
+        android:id="@+id/action_favorites"
+        android:enabled="true"
+        android:icon="@drawable/ic_star_fav"
+        android:title="@string/favorites" />
+    <item
         android:id="@+id/action_popular"
         android:enabled="true"
         android:icon="@drawable/ic_star"
@@ -15,9 +20,5 @@
         android:enabled="true"
         android:icon="@drawable/ic_movie_roll"
         android:title="@string/upcoming" />
-    <item
-        android:id="@+id/action_favorites"
-        android:enabled="true"
-        android:icon="@drawable/ic_star_fav"
-        android:title="@string/favorites" />
+
 </menu>
