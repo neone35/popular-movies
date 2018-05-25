@@ -44,6 +44,7 @@ public class MainActivity extends AppCompatActivity implements MoviePosterAdapte
     public static final String EXTRA_MOVIE_FULL_URL = "movie_poster_full_url";
     private static final String TAG = MainActivity.class.getName();
     private static final String KEY_RV_POSITION_STATE = "rv_position";
+    private static final String KEY_BOTTOM_NAV_SELECTION = "bottom_nav_selection";
     private static final String KEY_SORT_BY = "favorites";
     private ActivityMainBinding mainBinding;
     private RecyclerView posterRecyclerView;
@@ -56,13 +57,14 @@ public class MainActivity extends AppCompatActivity implements MoviePosterAdapte
         mainBinding = DataBindingUtil.setContentView(this, R.layout.activity_main);
         actionBarSetup();
         recyclerViewSetup();
-        // get last selected tab
+        // get last selected tab and set content & bottom nav item
         SharedPreferences sharedPref = getPreferences(Context.MODE_PRIVATE);
         if (sharedPref.getString(KEY_SORT_BY, "favorites").equals("favorites")) {
             displayFavorites();
         } else {
             displayMoviePosters(sharedPref.getString(KEY_SORT_BY, "favorites")); //default - favorites
         }
+        mainBinding.bnvMain.setSelectedItemId(sharedPref.getInt(KEY_BOTTOM_NAV_SELECTION, -1));
         // create snack for use in further check
         noInternetSnack = Snackbar.make(mainBinding.mainConstrainLayout,
                 getString(R.string.no_internet_msg), Snackbar.LENGTH_LONG);
@@ -131,22 +133,23 @@ public class MainActivity extends AppCompatActivity implements MoviePosterAdapte
                 switch (item.getItemId()) {
                     case R.id.action_favorites:
                         displayFavorites();
-                        editor.putString(KEY_SORT_BY, "favorites");
+                        editor.putString(KEY_SORT_BY, getString(R.string.favorites_string));
+                        editor.putInt(KEY_BOTTOM_NAV_SELECTION, R.id.action_favorites);
                         editor.apply();
                         return true;
                     case R.id.action_popular:
                         displayMoviePosters(UrlUtils.MOVIE_DB_PATH_POPULAR);
-                        editor.putString(KEY_SORT_BY, UrlUtils.MOVIE_DB_PATH_POPULAR);
+                        editor.putInt(KEY_BOTTOM_NAV_SELECTION, R.id.action_popular);
                         editor.apply();
                         return true;
                     case R.id.action_top_rated:
                         displayMoviePosters(UrlUtils.MOVIE_DB_PATH_TOP_RATED);
-                        editor.putString(KEY_SORT_BY, UrlUtils.MOVIE_DB_PATH_TOP_RATED);
+                        editor.putInt(KEY_BOTTOM_NAV_SELECTION, R.id.action_top_rated);
                         editor.apply();
                         return true;
                     case R.id.action_upcoming:
                         displayMoviePosters(UrlUtils.MOVIE_DB_PATH_UPCOMING);
-                        editor.putString(KEY_SORT_BY, UrlUtils.MOVIE_DB_PATH_UPCOMING);
+                        editor.putInt(KEY_BOTTOM_NAV_SELECTION, R.id.action_upcoming);
                         editor.apply();
                         return true;
                 }
@@ -182,6 +185,11 @@ public class MainActivity extends AppCompatActivity implements MoviePosterAdapte
     }
 
     private void displayMoviePosters(String sortBy) {
+        SharedPreferences sharedPref = getPreferences(Context.MODE_PRIVATE);
+        final SharedPreferences.Editor editor = sharedPref.edit();
+        editor.putString(KEY_SORT_BY, sortBy);
+        editor.apply();
+
         String configUrl = UrlUtils.getConfigUrl();
         String moviesUrl = UrlUtils.getMoviesUrl(sortBy);
 
