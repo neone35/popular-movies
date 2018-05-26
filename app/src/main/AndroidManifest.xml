@@ -21,12 +21,16 @@
         <activity
             android:name=".MovieDetailsActivity"
             android:configChanges="orientation|keyboardHidden"
-            android:parentActivityName=".MovieDetailsActivity"
+            android:parentActivityName=".MainActivity"
             android:screenOrientation="portrait">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value=".MainActivity" />
         </activity>
+        <provider
+            android:name="com.amaslov.android.popularmovies.sqlitedb.FavoritesContentProvider"
+            android:authorities="com.amaslov.android.popularmovies"
+            android:exported="false" />
     </application>
 
 </manifest>

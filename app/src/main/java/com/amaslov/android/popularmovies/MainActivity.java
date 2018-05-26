@@ -1,5 +1,6 @@
 package com.amaslov.android.popularmovies;
 
+import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -8,11 +9,16 @@ import android.databinding.DataBindingUtil;
 import android.graphics.Point;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
+import android.net.Uri;
 import android.os.Parcelable;
 import android.os.PersistableBundle;
 import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.support.design.widget.BottomNavigationView;
 import android.support.design.widget.Snackbar;
+import android.support.v4.app.LoaderManager;
+import android.support.v4.content.CursorLoader;
+import android.support.v4.content.Loader;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.GridLayoutManager;
@@ -32,13 +38,12 @@ import com.amaslov.android.popularmovies.asynctasks.MovieInfoTask;
 import com.amaslov.android.popularmovies.asynctasks.OnEventListener;
 import com.amaslov.android.popularmovies.databinding.ActivityMainBinding;
 import com.amaslov.android.popularmovies.parcelables.MovieInfo;
+import com.amaslov.android.popularmovies.sqlitedb.FavoritesContract;
 import com.amaslov.android.popularmovies.utilities.SqlUtils;
 import com.amaslov.android.popularmovies.utilities.UrlUtils;
 
-import static com.amaslov.android.popularmovies.utilities.SqlUtils.getFavoritesTable;
 
-
-public class MainActivity extends AppCompatActivity implements MoviePosterAdapter.ListItemClickListener {
+public class MainActivity extends AppCompatActivity implements LoaderManager.LoaderCallbacks<Cursor> {
 
     public static final String EXTRA_MOVIE_ID = "movie_id";
     public static final String EXTRA_MOVIE_FULL_URL = "movie_poster_full_url";
@@ -46,10 +51,16 @@ public class MainActivity extends AppCompatActivity implements MoviePosterAdapte
     private static final String KEY_RV_POSITION_STATE = "rv_position";
     private static final String KEY_BOTTOM_NAV_SELECTION = "bottom_nav_selection";
     private static final String KEY_SORT_BY = "favorites";
+    private static final int ID_FAVORITES_LOADER = 514;
     private ActivityMainBinding mainBinding;
     private RecyclerView posterRecyclerView;
     private Snackbar noInternetSnack = null;
     private GridLayoutManager mGridLayoutManager;
+    private final String[] FAVORITE_POSTER_PROJECTION = {
+            SqlUtils.FAVORITES_FULL_URL,
+    };
+    private MovieFavoritesAdapter mMovieFavoritesAdapter;
+    private ProgressDialog dialog;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -60,7 +71,7 @@ public class MainActivity extends AppCompatActivity implements MoviePosterAdapte
         // get last selected tab and set content & bottom nav item
         SharedPreferences sharedPref = getPreferences(Context.MODE_PRIVATE);
         if (sharedPref.getString(KEY_SORT_BY, "favorites").equals("favorites")) {
-            displayFavorites();
+            getSupportLoaderManager().initLoader(ID_FAVORITES_LOADER, null, this);
         } else {
             displayMoviePosters(sharedPref.getString(KEY_SORT_BY, "favorites")); //default - favorites
         }
@@ -132,7 +143,7 @@ public class MainActivity extends AppCompatActivity implements MoviePosterAdapte
             public boolean onNavigationItemSelected(@NonNull MenuItem item) {
                 switch (item.getItemId()) {
                     case R.id.action_favorites:
-                        displayFavorites();
+                        getSupportLoaderManager().restartLoader(ID_FAVORITES_LOADER, null, MainActivity.this);
                         editor.putString(KEY_SORT_BY, getString(R.string.favorites_string));
                         editor.putInt(KEY_BOTTOM_NAV_SELECTION, R.id.action_favorites);
                         editor.apply();
@@ -140,29 +151,25 @@ public class MainActivity extends AppCompatActivity implements MoviePosterAdapte
                     case R.id.action_popular:
                         displayMoviePosters(UrlUtils.MOVIE_DB_PATH_POPULAR);
                         editor.putInt(KEY_BOTTOM_NAV_SELECTION, R.id.action_popular);
+                        editor.putString(KEY_SORT_BY, UrlUtils.MOVIE_DB_PATH_POPULAR);
                         editor.apply();
                         return true;
                     case R.id.action_top_rated:
                         displayMoviePosters(UrlUtils.MOVIE_DB_PATH_TOP_RATED);
                         editor.putInt(KEY_BOTTOM_NAV_SELECTION, R.id.action_top_rated);
+                        editor.putString(KEY_SORT_BY, UrlUtils.MOVIE_DB_PATH_TOP_RATED);
                         editor.apply();
                         return true;
                     case R.id.action_upcoming:
                         displayMoviePosters(UrlUtils.MOVIE_DB_PATH_UPCOMING);
                         editor.putInt(KEY_BOTTOM_NAV_SELECTION, R.id.action_upcoming);
+                        editor.putString(KEY_SORT_BY, UrlUtils.MOVIE_DB_PATH_UPCOMING);
                         editor.apply();
                         return true;
                 }
                 return false;
             }
         });
-    }
-
-    private void displayFavorites() {
-        Cursor favoritesDbCursor = SqlUtils.getFavoritesTable(MainActivity.this);
-        MovieFavoritesAdapter movieFavoritesAdapter = new MovieFavoritesAdapter(favoritesDbCursor, MainActivity.this);
-        movieFavoritesAdapter.swapCursor(SqlUtils.getFavoritesTable(MainActivity.this));
-        posterRecyclerView.setAdapter(movieFavoritesAdapter);
     }
 
     private void recyclerViewSetup() {
@@ -185,11 +192,6 @@ public class MainActivity extends AppCompatActivity implements MoviePosterAdapte
     }
 
     private void displayMoviePosters(String sortBy) {
-        SharedPreferences sharedPref = getPreferences(Context.MODE_PRIVATE);
-        final SharedPreferences.Editor editor = sharedPref.edit();
-        editor.putString(KEY_SORT_BY, sortBy);
-        editor.apply();
-
         String configUrl = UrlUtils.getConfigUrl();
         String moviesUrl = UrlUtils.getMoviesUrl(sortBy);
 
@@ -207,14 +209,6 @@ public class MainActivity extends AppCompatActivity implements MoviePosterAdapte
             }
         });
         movieInfoTask.execute(configUrl, moviesUrl, null);
-    }
-
-    @Override
-    public void onListItemClick(String movieId, String movieFullUrl) {
-        Intent movieDetailsIntent = new Intent(this, MovieDetailsActivity.class);
-        movieDetailsIntent.putExtra(EXTRA_MOVIE_ID, movieId); // 18028
-        movieDetailsIntent.putExtra(EXTRA_MOVIE_FULL_URL, movieFullUrl); // poster image url
-        startActivity(movieDetailsIntent);
     }
 
     @Override
@@ -236,5 +230,45 @@ public class MainActivity extends AppCompatActivity implements MoviePosterAdapte
         }
     }
 
+    public ProgressDialog getDialog(String title, String message) {
+        dialog = new ProgressDialog(this);
+        dialog.setTitle(title);
+        dialog.setMessage(message);
+        dialog.setIndeterminate(true);
+        return dialog;
+    }
 
+    @NonNull
+    @Override
+    public Loader<Cursor> onCreateLoader(int loaderId, @Nullable Bundle args) {
+        switch (loaderId) {
+            case ID_FAVORITES_LOADER:
+                getDialog(getString(R.string.loading_favorites), getString(R.string.please_wait)).show();
+                return new CursorLoader(this,
+                        SqlUtils.FAVORITES_CONTENT_URI,
+                        FAVORITE_POSTER_PROJECTION,
+                        null,
+                        null,
+                        SqlUtils.FAVORITES_TITLE);
+
+            default:
+                throw new RuntimeException("Loader Not Implemented: " + loaderId);
+        }
+    }
+
+    @Override
+    public void onLoadFinished(@NonNull Loader<Cursor> loader, Cursor data) {
+        if (data != null && data.getCount() > 0) {
+            dialog.hide();
+            data.moveToFirst();
+            mMovieFavoritesAdapter = new MovieFavoritesAdapter(data, MainActivity.this);
+//            mMovieFavoritesAdapter.swapCursor(data);
+            posterRecyclerView.setAdapter(mMovieFavoritesAdapter);
+        }
+    }
+
+    @Override
+    public void onLoaderReset(@NonNull Loader<Cursor> loader) {
+        mMovieFavoritesAdapter.swapCursor(null);
+    }
 }

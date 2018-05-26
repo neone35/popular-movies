@@ -1,11 +1,16 @@
 package com.amaslov.android.popularmovies.adapters;
 
+import android.content.Context;
+import android.content.Intent;
+import android.support.annotation.NonNull;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 
+import com.amaslov.android.popularmovies.MainActivity;
+import com.amaslov.android.popularmovies.MovieDetailsActivity;
 import com.amaslov.android.popularmovies.R;
 import com.amaslov.android.popularmovies.parcelables.MovieInfo;
 import com.squareup.picasso.Picasso;
@@ -13,10 +18,10 @@ import com.squareup.picasso.Picasso;
 public class MoviePosterAdapter extends RecyclerView.Adapter<MoviePosterAdapter.ViewHolder> {
     private static final String TAG = "MoviePosterAdapter";
     private static MovieInfo movie;
-    final private ListItemClickListener mOnClickListener;
+    private Context mContext;
 
-    public MoviePosterAdapter(ListItemClickListener listener, MovieInfo moviesInfo) {
-        mOnClickListener = listener;
+    public MoviePosterAdapter(Context context, MovieInfo moviesInfo) {
+        mContext = context;
         movie = moviesInfo;
     }
 
@@ -28,15 +33,16 @@ public class MoviePosterAdapter extends RecyclerView.Adapter<MoviePosterAdapter.
         return movie.getFullUrls().length;
     }
 
+    @NonNull
     @Override
-    public ViewHolder onCreateViewHolder(ViewGroup viewGroup, int viewType) {
+    public ViewHolder onCreateViewHolder(@NonNull ViewGroup viewGroup, int viewType) {
         View v = LayoutInflater.from(viewGroup.getContext())
                 .inflate(R.layout.grid_poster_item, viewGroup, false);
         return new ViewHolder(v);
     }
 
     @Override
-    public void onBindViewHolder(ViewHolder viewHolder, final int position) {
+    public void onBindViewHolder(@NonNull ViewHolder viewHolder, final int position) {
 //        Log.d(TAG, "Element " + position + " set.");
         ImageView ivContext = viewHolder.getImageView();
         int mainPosterWidth =
@@ -51,10 +57,6 @@ public class MoviePosterAdapter extends RecyclerView.Adapter<MoviePosterAdapter.
                 .centerCrop()
                 .resize(mainPosterWidth, mainPosterHeight)
                 .into(viewHolder.getImageView());
-    }
-
-    public interface ListItemClickListener {
-        void onListItemClick(String movieId, String movieFullUrl);
     }
 
     /**
@@ -76,7 +78,10 @@ public class MoviePosterAdapter extends RecyclerView.Adapter<MoviePosterAdapter.
         @Override
         public void onClick(View view) {
             int p = getAdapterPosition();
-            mOnClickListener.onListItemClick(movie.getIds()[p], movie.getFullUrls()[p]);
+            Intent movieDetailsIntent = new Intent(mContext, MovieDetailsActivity.class);
+            movieDetailsIntent.putExtra(MainActivity.EXTRA_MOVIE_ID, movie.getIds()[p]); // 18028
+            movieDetailsIntent.putExtra(MainActivity.EXTRA_MOVIE_FULL_URL, movie.getFullUrls()[p]); // poster image url
+            mContext.startActivity(movieDetailsIntent);
         }
     }
 
