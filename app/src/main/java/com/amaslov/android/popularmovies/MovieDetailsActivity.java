@@ -100,8 +100,7 @@ public class MovieDetailsActivity extends AppCompatActivity implements MovieTrai
                     v.setBackgroundResource(R.drawable.button_favorite_active);
                     v.setTag(FAVORITE_ACTIVE);
                     if (SqlUtils.addToFavorites(mMovieDetails, movieId, MovieDetailsActivity.this)) {
-                        showToast("'" + favoriteMovieTitle + "' successfully added to favorites");
-
+                        showToast("'" + mMovieDetails.getTitle() + "' successfully added to favorites");
 //                        Cursor favoritesDbCursor =
 //                                getContentResolver().query(
 //                                        SqlUtils.FAVORITES_CONTENT_URI, null, null, null,
@@ -115,13 +114,6 @@ public class MovieDetailsActivity extends AppCompatActivity implements MovieTrai
                     v.setTag(null);
                     if (SqlUtils.removeFromFavorites(movieId, MovieDetailsActivity.this)) {
                         showToast("'" + favoriteMovieTitle + "' successfully removed from favorites");
-//
-//                        Cursor favoritesDbCursor =
-//                                getContentResolver().query(
-//                                        FavoritesContract.FavoritesEntry.CONTENT_URI, null, null, null,
-//                                        FavoritesContract.FavoritesEntry._ID);
-//                        Log.d(TAG, "favorites num: " + favoritesDbCursor.getCount());
-//                        favoritesDbCursor.close();
                     }
                 }
             }
@@ -130,18 +122,20 @@ public class MovieDetailsActivity extends AppCompatActivity implements MovieTrai
 
     public void checkIfFavorite() {
         // Filter results WHERE "_ID" = 'movieId'
-        String selectionID = SqlUtils.FAVORITES_ID + "=?";
+        String selectId = SqlUtils.FAVORITES_ID + "=?";
         Cursor favoriteSelector = getContentResolver().query(
                 SqlUtils.FAVORITES_CONTENT_URI,
                 null,
-                selectionID,
+                selectId,
                 new String[]{movieId},
                 null);
         if (favoriteSelector != null) {
-            Log.d(TAG, "checkIfFavorite: " + favoriteSelector.getCount());
-            activityMovieDetailsBinding.ibFavorite.setTag(FAVORITE_ACTIVE);
-            activityMovieDetailsBinding.ibFavorite.setBackgroundResource(R.drawable.button_favorite_active);
-            favoriteSelector.close();
+            if (favoriteSelector.getCount() != 0) {
+                Log.d(TAG, "checkIfFavorite: " + favoriteSelector.getCount());
+                activityMovieDetailsBinding.ibFavorite.setTag(FAVORITE_ACTIVE);
+                activityMovieDetailsBinding.ibFavorite.setBackgroundResource(R.drawable.button_favorite_active);
+                favoriteSelector.close();
+            }
         } else {
             activityMovieDetailsBinding.ibFavorite.setTag(null);
             activityMovieDetailsBinding.ibFavorite.setBackgroundResource(R.drawable.button_details_inactive);
@@ -276,9 +270,9 @@ public class MovieDetailsActivity extends AppCompatActivity implements MovieTrai
         movieId = intent.getStringExtra(MainActivity.EXTRA_MOVIE_ID);
         String movieFullUrl = intent.getStringExtra(MainActivity.EXTRA_MOVIE_FULL_URL);
         if (intent.hasExtra(EXTRA_FAVORITE_TITLE))
-            displayFavoriteDetails(intent, movieFullUrl);
+            displayFavoriteDetails(intent, movieFullUrl); // intent came from MovieFavoritesAdapter
         else
-            displayMovieDetailsTask(movieId, movieFullUrl);
+            displayMovieDetailsTask(intent); // intent came from MoviePosterAdapter
     }
 
     // Calculate poster dimensions according to screen dpi programatically
@@ -292,6 +286,7 @@ public class MovieDetailsActivity extends AppCompatActivity implements MovieTrai
         return new int[]{detailsPosterWidth, detailsPosterHeight};
     }
 
+    // intent came from MovieFavoritesAdapter
     private void displayFavoriteDetails(Intent intent, String posterUrl) {
         favoriteMovieTitle = intent.getStringExtra(EXTRA_FAVORITE_TITLE);
         String movieReleaseDate = intent.getStringExtra(EXTRA_FAVORITE_RELEASE_DATE);
@@ -316,7 +311,9 @@ public class MovieDetailsActivity extends AppCompatActivity implements MovieTrai
         activityMovieDetailsBinding.tvVoteCount.setText(movieVoteCount);
     }
 
-    private void displayMovieDetailsTask(String movieId, String movieFullUrl) {
+    // intent came from MoviePosterAdapter
+    private void displayMovieDetailsTask(Intent intent) {
+        String movieFullUrl = intent.getStringExtra(MainActivity.EXTRA_MOVIE_FULL_URL);
         MovieDetailsTask movieDetailsTask =
                 new MovieDetailsTask(this, new OnEventListener<MovieDetails>() {
                     @Override

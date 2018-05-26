@@ -33,4 +33,18 @@
     <string name="favorites">Favorites</string>
     <string name="favorites_string">favorites</string>
     <string name="loading_favorites">Loading favorites…</string>
+    <string name="title_activity_settings">settings</string>
+    <string name="action_settings">Settings</string>
+
+    <!-- Settings strings -->
+    <string name="pref_favorite_sort_label">Favorites</string>
+    <string name="pref_fav_sort_key" translatable="false">sort-by</string>
+    <string name="pref_fav_sort_title_value" translatable="false">title</string>
+    <string name="pref_fav_sort_date_value" translatable="false">release-date</string>
+    <string name="pref_fav_sort_avgVote_value" translatable="false">average-vote</string>
+    <string name="pref_fav_sort_title_label">Title</string>
+    <string name="pref_fav_sort_date_label">Release date</string>
+    <string name="pref_fav_sort_avgVote_label">Average vote</string>
+    <string name="settings_sort_section_title">Sort</string>
+    <string name="movie_poster_item">movie poster item</string>
 </resources>

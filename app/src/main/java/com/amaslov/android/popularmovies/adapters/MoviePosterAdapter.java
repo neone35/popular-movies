@@ -8,12 +8,15 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
+import android.widget.TextView;
 
 import com.amaslov.android.popularmovies.MainActivity;
 import com.amaslov.android.popularmovies.MovieDetailsActivity;
 import com.amaslov.android.popularmovies.R;
 import com.amaslov.android.popularmovies.parcelables.MovieInfo;
 import com.squareup.picasso.Picasso;
+
+import org.w3c.dom.Text;
 
 public class MoviePosterAdapter extends RecyclerView.Adapter<MoviePosterAdapter.ViewHolder> {
     private static final String TAG = "MoviePosterAdapter";
@@ -57,6 +60,7 @@ public class MoviePosterAdapter extends RecyclerView.Adapter<MoviePosterAdapter.
                 .centerCrop()
                 .resize(mainPosterWidth, mainPosterHeight)
                 .into(viewHolder.getImageView());
+//        viewHolder.getExtraText().setText(movie.getAvgVotes()[position]);
     }
 
     /**
@@ -64,15 +68,21 @@ public class MoviePosterAdapter extends RecyclerView.Adapter<MoviePosterAdapter.
      */
     public class ViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
         private final ImageView posterImageView;
+        private final TextView posterExtraText;
 
         private ViewHolder(View view) {
             super(view);
             view.setOnClickListener(this);
             posterImageView = view.findViewById(R.id.posterImageView);
+            posterExtraText = view.findViewById(R.id.posterExtraInfo);
         }
 
         private ImageView getImageView() {
             return posterImageView;
+        }
+
+        private TextView getExtraText() {
+            return posterExtraText;
         }
 
         @Override

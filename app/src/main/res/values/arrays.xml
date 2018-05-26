@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <array name="pref_fav_sort_values">
+        <item>@string/pref_fav_sort_title_value</item>
+        <item>@string/pref_fav_sort_date_value</item>
+        <item>@string/pref_fav_sort_avgVote_value</item>
+    </array>
+
+    <array name="pref_fav_sort_labels">
+        <item>@string/pref_fav_sort_title_label</item>
+        <item>@string/pref_fav_sort_date_label</item>
+        <item>@string/pref_fav_sort_avgVote_label</item>
+    </array>
+</resources>

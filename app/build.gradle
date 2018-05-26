@@ -44,6 +44,7 @@ dependencies {
     implementation 'com.android.support.constraint:constraint-layout:1.1.0'
     implementation "com.android.support:recyclerview-v7:${supportLibVersion}"
     implementation "com.android.support:percent:${supportLibVersion}"
+    implementation "com.android.support:preference-v7:${supportLibVersion}"
     implementation 'com.squareup.picasso:picasso:2.6.0-SNAPSHOT'
     implementation 'com.squareup.okhttp3:okhttp:3.9.1'
     implementation 'com.squareup.retrofit2:retrofit:2.3.0'

@@ -12,7 +12,6 @@ import static com.amaslov.android.popularmovies.BuildConfig.YOUTUBE_API_KEY;
 
 public class YtPlayerFragment extends YouTubePlayerSupportFragment implements YouTubePlayer.OnInitializedListener {
     private static final String YT_VIDEO_ID = "yt_id";
-//    private OnFragmentInteractionListener mListener;
 
     public YtPlayerFragment() {
         // Required empty public constructor

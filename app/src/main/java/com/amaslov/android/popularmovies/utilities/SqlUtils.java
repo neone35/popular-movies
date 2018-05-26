@@ -18,6 +18,8 @@ public class SqlUtils {
     final public static String FAVORITES_ID = FavoritesContract.FavoritesEntry._ID;
     final public static String FAVORITES_FULL_URL = FavoritesContract.FavoritesEntry.COLUMN_MOVIE_FULL_URL;
     final public static String FAVORITES_TITLE = FavoritesContract.FavoritesEntry.COLUMN_MOVIE_TITLE;
+    final public static String FAVORITES_RELEASE_DATE = FavoritesContract.FavoritesEntry.COLUMN_MOVIE_RELEASE_DATE;
+    final public static String FAVORITES_AVERGAGE_VOTE = FavoritesContract.FavoritesEntry.COLUMN_MOVIE_VOTE_AVERAGE;
 
     public SqlUtils() {
     }

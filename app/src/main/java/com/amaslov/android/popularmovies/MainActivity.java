@@ -21,6 +21,7 @@ import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.support.v7.preference.PreferenceManager;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.DisplayMetrics;
@@ -43,14 +44,16 @@ import com.amaslov.android.popularmovies.utilities.SqlUtils;
 import com.amaslov.android.popularmovies.utilities.UrlUtils;
 
 
-public class MainActivity extends AppCompatActivity implements LoaderManager.LoaderCallbacks<Cursor> {
+public class MainActivity extends AppCompatActivity implements
+        LoaderManager.LoaderCallbacks<Cursor>,
+        SharedPreferences.OnSharedPreferenceChangeListener {
 
     public static final String EXTRA_MOVIE_ID = "movie_id";
     public static final String EXTRA_MOVIE_FULL_URL = "movie_poster_full_url";
     private static final String TAG = MainActivity.class.getName();
     private static final String KEY_RV_POSITION_STATE = "rv_position";
     private static final String KEY_BOTTOM_NAV_SELECTION = "bottom_nav_selection";
-    private static final String KEY_SORT_BY = "favorites";
+    private static final String KEY_SORT_BY = "main_sort_by";
     private static final int ID_FAVORITES_LOADER = 514;
     private ActivityMainBinding mainBinding;
     private RecyclerView posterRecyclerView;
@@ -61,6 +64,7 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
     };
     private MovieFavoritesAdapter mMovieFavoritesAdapter;
     private ProgressDialog dialog;
+    private static boolean PREFERENCES_HAVE_BEEN_UPDATED = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -68,14 +72,19 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
         mainBinding = DataBindingUtil.setContentView(this, R.layout.activity_main);
         actionBarSetup();
         recyclerViewSetup();
+        // global preferences
+        PreferenceManager.getDefaultSharedPreferences(this)
+                .registerOnSharedPreferenceChangeListener(this);
+
         // get last selected tab and set content & bottom nav item
-        SharedPreferences sharedPref = getPreferences(Context.MODE_PRIVATE);
-        if (sharedPref.getString(KEY_SORT_BY, "favorites").equals("favorites")) {
+        SharedPreferences localPref = getPreferences(Context.MODE_PRIVATE); // activity preferences
+        if (localPref.getString(KEY_SORT_BY, "favorites").equals("favorites")) {
             getSupportLoaderManager().initLoader(ID_FAVORITES_LOADER, null, this);
         } else {
-            displayMoviePosters(sharedPref.getString(KEY_SORT_BY, "favorites")); //default - favorites
+            displayMoviePosters(localPref.getString(KEY_SORT_BY, "favorites")); //default - favorites
         }
-        mainBinding.bnvMain.setSelectedItemId(sharedPref.getInt(KEY_BOTTOM_NAV_SELECTION, -1));
+        mainBinding.bnvMain.setSelectedItemId(localPref.getInt(KEY_BOTTOM_NAV_SELECTION, -1));
+
         // create snack for use in further check
         noInternetSnack = Snackbar.make(mainBinding.mainConstrainLayout,
                 getString(R.string.no_internet_msg), Snackbar.LENGTH_LONG);
@@ -99,6 +108,20 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
             if (posterRecyclerView.getAdapter() != null)
                 posterRecyclerView.setAdapter(null);
         }
+
+        if (PREFERENCES_HAVE_BEEN_UPDATED) {
+            Log.d(TAG, "onStart: preferences were updated");
+            getSupportLoaderManager().restartLoader(ID_FAVORITES_LOADER, null, this);
+            mainBinding.bnvMain.setSelectedItemId(R.id.action_favorites);
+            PREFERENCES_HAVE_BEEN_UPDATED = false;
+        }
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        PreferenceManager.getDefaultSharedPreferences(this)
+                .unregisterOnSharedPreferenceChangeListener(this);
     }
 
     @Override
@@ -135,8 +158,8 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
 
     private void bottomNavListenerSetup() {
         BottomNavigationView bottomNavigationView = findViewById(R.id.bnv_main);
-        SharedPreferences sharedPref = getPreferences(Context.MODE_PRIVATE);
-        final SharedPreferences.Editor editor = sharedPref.edit();
+        SharedPreferences localPref = getPreferences(Context.MODE_PRIVATE);
+        final SharedPreferences.Editor editor = localPref.edit();
 
         mainBinding.bnvMain.setOnNavigationItemSelectedListener(new BottomNavigationView.OnNavigationItemSelectedListener() {
             @Override
@@ -221,9 +244,9 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             case R.id.action_settings:
-//                displayPopularMoviePosters();
+                Intent settingsIntent = new Intent(this, SettingsActivity.class);
+                startActivity(settingsIntent);
                 return true;
-
             default:
                 return super.onOptionsItemSelected(item);
 
@@ -241,15 +264,17 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
     @NonNull
     @Override
     public Loader<Cursor> onCreateLoader(int loaderId, @Nullable Bundle args) {
+        SharedPreferences globalPref = PreferenceManager.getDefaultSharedPreferences(this);
+        Log.d(TAG, "onCreateLoader: " + globalPref.getAll());
         switch (loaderId) {
             case ID_FAVORITES_LOADER:
-                getDialog(getString(R.string.loading_favorites), getString(R.string.please_wait)).show();
+//                getDialog(getString(R.string.loading_favorites), getString(R.string.please_wait)).show();
                 return new CursorLoader(this,
                         SqlUtils.FAVORITES_CONTENT_URI,
                         FAVORITE_POSTER_PROJECTION,
                         null,
                         null,
-                        SqlUtils.FAVORITES_TITLE);
+                        globalPref.getString(SettingsActivity.KEY_FAVORITES_SORT_BY, SqlUtils.FAVORITES_TITLE));
 
             default:
                 throw new RuntimeException("Loader Not Implemented: " + loaderId);
@@ -259,10 +284,9 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
     @Override
     public void onLoadFinished(@NonNull Loader<Cursor> loader, Cursor data) {
         if (data != null && data.getCount() > 0) {
-            dialog.hide();
+//            dialog.dismiss();
             data.moveToFirst();
             mMovieFavoritesAdapter = new MovieFavoritesAdapter(data, MainActivity.this);
-//            mMovieFavoritesAdapter.swapCursor(data);
             posterRecyclerView.setAdapter(mMovieFavoritesAdapter);
         }
     }
@@ -270,5 +294,28 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
     @Override
     public void onLoaderReset(@NonNull Loader<Cursor> loader) {
         mMovieFavoritesAdapter.swapCursor(null);
+    }
+
+    @Override
+    public void onSharedPreferenceChanged(SharedPreferences globalPref, String key) {
+        final SharedPreferences.Editor editor = globalPref.edit();
+        if (key.equals(getString(R.string.pref_fav_sort_key))) {
+            String selectedSort = globalPref.getString(key, SqlUtils.FAVORITES_TITLE);
+            switch (selectedSort) {
+                case "title":
+                    editor.putString(SettingsActivity.KEY_FAVORITES_SORT_BY, SqlUtils.FAVORITES_TITLE);
+                    editor.apply();
+                    break;
+                case "release-date":
+                    editor.putString(SettingsActivity.KEY_FAVORITES_SORT_BY, SqlUtils.FAVORITES_RELEASE_DATE);
+                    editor.apply();
+                    break;
+                case "average-vote":
+                    editor.putString(SettingsActivity.KEY_FAVORITES_SORT_BY, SqlUtils.FAVORITES_AVERGAGE_VOTE);
+                    editor.apply();
+                    break;
+            }
+        }
+        PREFERENCES_HAVE_BEEN_UPDATED = true;
     }
 }
