@@ -12,10 +12,10 @@ To become an Android developer, you must know how to bring particular mobile exp
 
 ## What Did I Learn?
 - Fetch data from the Internet with the MovieDB API.
-- Use adapters and custom list layouts to populate list views.
-- Incorporate libraries to simplify the amount of code you need to write
+- Use adapters and list layouts to populate list views.
+- Incorporate libraries to shorten code.
 
-## TODOs
+## Task
 * Present the user with a grid arrangement of movie posters upon launch.
 * Allow your user to change sort order via a setting:
   * The sort order can be by most popular or by highest-rated
