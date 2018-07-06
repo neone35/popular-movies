@@ -8,7 +8,7 @@ To become an Android developer, you must know how to bring particular mobile exp
 > By building this app, you will demonstrate your understanding of the foundational elements of programming for Android. Your app will communicate with the Internet and provide a responsive and delightful user experience.
 
 ## Screenshots
-![Popular movies user interface](https://preview.ibb.co/gomh4y/popular_movies.jpg)
+![Popular movies user interface](https://preview.ibb.co/gomh4y/popular_movies.jpg "Popular movies user interface")
 
 ## What Did I Learn?
 - Fetch data from the Internet with the MovieDB API.
